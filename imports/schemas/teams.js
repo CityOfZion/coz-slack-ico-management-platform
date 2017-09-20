@@ -1,0 +1,3 @@
+const TeamSchema = new SimpleSchema({
+
+});

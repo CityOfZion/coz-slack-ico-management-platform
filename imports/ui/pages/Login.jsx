@@ -1,0 +1,99 @@
+import React, {Component} from 'react';
+import Button from 'material-ui/Button'
+import PropTypes from 'prop-types';
+import { withStyles } from 'material-ui/styles';
+import Paper from 'material-ui/Paper';
+import Typography from 'material-ui/Typography';
+
+const styles = theme => ({
+  main: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  button: {
+    margin: theme.spacing.unit,
+  },
+  input: {
+    display: 'none',
+  },
+  root: theme.mixins.gutters({
+    width: '50vw',
+    paddingTop: 16,
+    paddingBottom: 16,
+    marginTop: theme.spacing.unit * 3,
+    textAlign: 'center'
+  }),
+  title: {
+    textAlign: 'center'
+  },
+  content: {
+    textAlign: 'center'
+  }
+});
+
+class Login extends Component {
+  
+  constructor() {
+    super();
+    
+    this.state = {
+      loginError: ''
+    }
+  }
+  
+  handleSlackLogin() {
+    console.log('login');
+    Meteor.loginWithSlack({
+      requestPermissions: [
+        'bot',
+        'im:history',
+        'im:write',
+        'im:read',
+        'reminders:read',
+        'reminders:write',
+        'users:read',
+        'identify',
+        'users.profile:write',
+        'chat:write:user',
+        'chat:write:bot'
+      ]}, (res, err) => {
+      console.log(err, res);
+      if(!err) {
+        Router.redirect('/registered');
+      } else {
+        Router.redirect('/');
+        this.setState({loginError: err});
+      }
+    });
+  }
+  
+  render() {
+    const {classes, title} = this.props;
+    return (
+      <div className={classes.main}>
+        <Paper className={classes.root} elevation={2}>
+          <Typography className={classes.title} type="headline" component="h3">
+            {title ? title : 'We require permissions'}
+          </Typography>
+          <Typography className={classes.content} type="body1" component="p">
+            Logging in with Slack will ask you for permissions, we will never use any of these to read your private messages.
+            These permissions are so we can see if there is an attempt to scam you.
+          </Typography>
+          <Typography className={classes.content} type="body1" component="p">
+            Please select the team you want to apply to after you click Login.
+          </Typography>
+          <Button raised color="primary" className={classes.button} onClick={this.handleSlackLogin}>
+            Login with Slack
+          </Button>
+        </Paper>
+      </div>
+    );
+  }
+}
+
+Login.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(Login);

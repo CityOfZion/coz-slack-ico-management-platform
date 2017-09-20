@@ -1,0 +1,9 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    line-height: 1;
+    font-family: 'Source Sans Pro',sans-serif;
+    vertical-align: baseline;
+    height: 100%
+}
