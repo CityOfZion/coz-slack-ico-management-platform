@@ -46,17 +46,24 @@ class Login extends Component {
     console.log('login');
     Meteor.loginWithSlack({
       requestPermissions: [
-        'bot',
-        'im:history',
-        'im:write',
         'im:read',
+        'channels:history',
+        'im:history',
+        'users:read',
+        'bot,admin',
+        'channels:read',
+        'channels:write',
+        'chat:write:bot',
+        'chat:write:user',
+        'im:write',
         'reminders:read',
         'reminders:write',
-        'users:read',
-        'identify',
+        'team:read',
+        'users.profile:read',
         'users.profile:write',
-        'chat:write:user',
-        'chat:write:bot'
+        'users:write',
+        'users:read.email',
+        'commands'
       ]}, (res, err) => {
       console.log(err, res);
       if(!err) {
