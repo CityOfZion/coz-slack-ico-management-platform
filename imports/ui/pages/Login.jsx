@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Button from 'material-ui/Button'
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
+import {withStyles} from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 
@@ -10,6 +10,7 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: '1vh'
   },
   button: {
     margin: theme.spacing.unit,
@@ -29,6 +30,11 @@ const styles = theme => ({
   },
   content: {
     textAlign: 'center'
+  },
+  paper: {
+    paddingLeft: '2vw',
+    paddingRight: '2vw',
+    marginBottom: '1vh'
   }
 });
 
@@ -45,17 +51,14 @@ class Login extends Component {
   handleSlackLogin() {
     Meteor.loginWithSlack({
       requestPermissions: [
-        'im:read',
-        'im:history',
-        'im:write',
-        'reminders:read',
-        'reminders:write',
-        'users.profile:read',
-        'users.profile:write',
-        'users:write',
-      ]}, (res, err) => {
+        'identity.email',
+        'identity.basic',
+        'identity.team',
+        'identity.avatar'
+      ]
+    }, (res, err) => {
       console.log(err, res);
-      if(!err) {
+      if (!err) {
         Router.redirect('/registered');
       } else {
         Router.redirect('/');
@@ -86,9 +89,10 @@ class Login extends Component {
         'users:write',
         'users:read.email',
         'commands'
-      ]}, (res, err) => {
+      ]
+    }, (res, err) => {
       console.log(err, res);
-      if(!err) {
+      if (!err) {
         Router.redirect('/registered');
       } else {
         Router.redirect('/');
@@ -100,34 +104,40 @@ class Login extends Component {
   render() {
     const {classes, title} = this.props;
     return (
-      <div className={classes.main}>
-        <Paper className={classes.root} elevation={2}>
-          <Typography className={classes.title} type="headline" component="h3">
-            {title ? title : 'We require permissions'}
-          </Typography>
-          <Typography className={classes.content} type="body1" component="p">
-            Logging in with Slack will ask you for permissions, we will never use any of these to read your private messages.
-            These permissions are so we can see if there is an attempt to scam you.
-          </Typography>
-          <Typography className={classes.content} type="body1" component="p">
-            Please select the team you want to apply to after you click Login.
-          </Typography>
-          <Button raised color="primary" className={classes.button} onClick={this.handleSlackLogin}>
-            Login with Slack
-          </Button>
-        </Paper>
-        <Paper className={classes.root} elevation={2}>
-          <Typography className={classes.title} type="headline" component="h3">
-            For Admins
-          </Typography>
-          <Typography className={classes.content} type="body1" component="p">
-            Adding to Slack will ask you for permissions, we will never use any of these to read your private messages.
-            These permissions are so we can see if there is an attempt to scam you.
-          </Typography>
-          <Button raised color="primary" className={classes.button} onClick={this.handleAddToSlack}>
-            Add to Slack
-          </Button>
-        </Paper>
+      <div>
+        <div className={classes.main}>
+          <Paper className={classes.root} elevation={3}>
+            <Typography className={classes.title} type="headline" component="h3">
+              {title ? title : 'We require permissions'}
+            </Typography>
+            <Typography className={classes.content} type="body1" component="p">
+              Logging in with Slack will ask you for permissions, we will never use any of these to read your private
+              messages.
+              These permissions are so we can see if there is an attempt to scam you.
+            </Typography>
+            <Typography className={classes.content} type="body1" component="p">
+              Please select the team you want to apply to after you click Login.
+            </Typography>
+            <Button raised color="primary" className={classes.button} onClick={this.handleSlackLogin}>
+              Login with Slack
+            </Button>
+          </Paper>
+        </div>
+        <div className={classes.main}>
+          <Paper className={classes.root} elevation={3}>
+            <Typography className={classes.title} type="headline" component="h3">
+              For Admins
+            </Typography>
+            <Typography className={classes.content} type="body1" component="p">
+              Adding to Slack will ask you for permissions, we will never use any of these to read your private
+              messages.
+              These permissions are so we can see if there is an attempt to scam you.
+            </Typography>
+            <Button raised color="primary" className={classes.button} onClick={this.handleAddToSlack}>
+              Add to Slack
+            </Button>
+          </Paper>
+        </div>
       </div>
     );
   }

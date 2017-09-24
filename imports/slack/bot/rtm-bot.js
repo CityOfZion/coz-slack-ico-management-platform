@@ -46,13 +46,28 @@ export default class Bot {
   }
   
   banUser = user => {
+    console.log('TRYING TO BAN USER', user.name);
     const isBanned = Banned.find({user: user.id, team_id: this.team.id}).count() > 0;
-  
+
     if(!this.team.settings.askBeforeBan && !isBanned && user && !isAdmin(user)) {
+      console.log('BANNING USER');
       Banned.insert({user: user.id, team_id: this.team.id});
-      this.notifyChannel(`Banned a user with id ${user.name} `);
+      this.notifyChannel(`Banned a user with id ${user.id} and name ${user.name} `);
+      this.deactivateUser(user.id);
       // this.sendPrivateMessage(user.id, 'You have been banned for suspicious activity');
     }
+  };
+
+  deactivateUser = user => {
+    if(!this.team.settings.adminToken) return;
+    const apiUrl = `${this.team.url}api/users.admin.setInactive?token=${this.team.settings.adminToken}&user=${user}`;
+    console.log('calling url', apiUrl);
+    HTTP.get(apiUrl, (err, res) => {
+      console.log('tried to deactivate a user by api token', err, res);
+      if(res.data.ok) {
+        this.notifyChannel(`Deactivated a user with id ${user}`);
+      }
+    })
   };
   
   notifyChannel = message => {
@@ -92,10 +107,12 @@ export default class Bot {
   
   async handleMessageEvent(message) {
     const msgType = messageType(message);
-    if (['pong', 'reconnect_url', 'presence_change', 'hello', 'user_typing', 'message_deleted', 'bot_message'].includes(msgType)) {
+    if (['pong', 'reconnect_url', 'presence_change', 'hello', 'user_typing', 'message_deleted', 'bot_message', 'im_open', 'im_close'].includes(msgType)) {
       return;
     }
     console.log('type', msgType);
+    
+    if(!message.user && message.user_id) message.user = message.user_id;
     
     let user = Meteor.users.findOne({"profile.user_id": message.user, "profile.team_id": this.team.id});
   
@@ -124,7 +141,7 @@ export default class Bot {
     // get user info from slack instead
     if(!user && typeof message.user === 'string') {
       const userResult = await this.web.users.info(message.user);
-      console.log('GETTING SLACK USER INSTEAD!!', userResult);
+      console.log('GETTING SLACK USER INSTEAD!!');
       if(userResult.ok) {
         user = userResult.user;
       }
@@ -263,6 +280,13 @@ export default class Bot {
                 Reported.insert({user: message.target_user, username: message.target_username, team_id: this.team.id, reports: 1, reporters: [{user: message.user_id, reason: message.reason}]});
                 // this.sendPrivateMessage(message.target_user, 'You have been reported for suspicious activity');
               }
+            }
+            break;
+          case '/nukefromorbit':
+            console.log('NUKE COMMAND');
+            
+            if(isAdmin(user)) {
+              this.deactivateUser(message.target_user);
             }
             break;
         }

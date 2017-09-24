@@ -58,7 +58,37 @@ Router.route('/slack/command/report', function () {
     data.reason = reason;
   }
   
-  console.log('SET EXTRA BODY PARAMS', data);
+  const teamId = data.team_id;
+  
+  if(teamId) {
+    console.log('SENDING MESSAGE TO BOT');
+    const bot = BotStorage[teamId];
+    bot.handleMessageEvent(data);
+  }
+  
+}, {where: 'server'});
+
+Router.route('/slack/command/nukefromorbit', function () {
+  const req = this.request;
+  const res = this.response;
+  const data = {...req.body};
+  
+  const splitData = data.text.split(' ');
+  const userString = splitData.shift();
+  
+  console.log('NUKING', userString);
+  
+  if(!/^<@[A-Z0-9]{9}\|[a-zA-Z0-9_\-.]{1,100}>$/.test(userString)) {
+    console.log('INVALID USER STRING');
+    res.end('This is not a valid user');
+    return;
+  } else {
+    res.end('Will try to nuke this user');
+    const {userId, username} = parseUserName(userString);
+    data.target_user = userId;
+    data.target_username = username;
+  }
+  
   const teamId = data.team_id;
   
   if(teamId) {

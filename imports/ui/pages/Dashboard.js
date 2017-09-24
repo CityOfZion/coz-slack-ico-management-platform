@@ -20,7 +20,7 @@ const styles = theme => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: '2vh'
+    marginBottom: '1vh'
   },
   button: {
     margin: theme.spacing.unit,
@@ -67,9 +67,9 @@ class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      forceUserSignup: true,
+      forceUserSignup: false,
   
-      allowReminders: false,
+      allowReminders: true,
       allowUserReminders: false,
   
       askBeforeBan: false,
@@ -77,15 +77,16 @@ class Dashboard extends Component {
       
       warnUserAboutScam: true,
   
-      removeDmSpam: false,
+      removeDmSpam: true,
       removeBannedUserMessages: true,
-      removeLinks: true,
+      removeLinks: false,
       removeDuplicateUserNames: true,
       removePublicChannelSpam: true,
       
       triggerWords: [],
       reportsNeededForBan: 5,
       restrictedUserNames: [],
+      adminToken: '',
       userScamWarningMessage: '',
       triggerWord: '',
       warningMessageChannel: '',
@@ -118,7 +119,7 @@ class Dashboard extends Component {
     
     Meteor.call('saveSettings', data, (err, res) => {
       this.setState({triggerWord: ''});
-      Meteor.setTimeout(() => this.setState({saving: false}), 10000);
+      Meteor.setTimeout(() => this.setState({saving: false}), 5000);
     });
   };
   
@@ -215,6 +216,41 @@ class Dashboard extends Component {
             margin="normal"
             fullWidth={true}
             onChange={event => this.setState({warningMessageChannel: event.target.value})}
+          />
+        </div>
+      </FormControl>
+    );
+  };
+  
+  specialAdminToken(){
+    const {classes} = this.props;
+    return (
+      <FormControl className={classes.formControl} component="fieldset">
+        <FormLabel className={classes.label}>Fill in your special admin token, the only way you can get his token is from the Slack website.
+          This token allows the bot to deactivate banned user accounts right away. <br />
+          Leave this empty if you don't want the use the functionality.
+        <ol>
+          <li>Login to slack as an admin</li>
+          <li>Go to workspace settings</li>
+          <li>Go to manage members and roles</li>
+          <li>In chrome open the inspection tool (right mouse + inspect)</li>
+          <li>Make sure the network tab is shown</li>
+          <li>Select a user to deactivate</li>
+          <li>In the network tab click on the button next to the red one (clear)</li>
+          <li>Click deactivate account</li>
+          <li>Now you will see a new entry show up with: users.admin.setInactive</li>
+          <li>Click on it, it should show a lot of information</li>
+          <li>Scroll down until you see: Request Payload</li>
+          <li>Copy the code starting with <strong>xoxs</strong> into the box below</li>
+        </ol>
+        </FormLabel>
+        <div className={classes.row}>
+          <TextField
+            label="Fill in your token"
+            value={this.state.adminToken}
+            margin="normal"
+            fullWidth={true}
+            onChange={event => this.setState({adminToken: event.target.value})}
           />
         </div>
       </FormControl>
@@ -509,6 +545,10 @@ class Dashboard extends Component {
             {this.removeDuplicateUserNames()}
             {this.state.removeDuplicateUserNames ? this.removeUserNames() : ''}
           </Paper>
+          
+          <Paper className={classes.paper} elevation={3}>
+            {this.specialAdminToken()}
+          </Paper>
   
           {this.state.saving ?
             <Button raised color="accent" className={classes.button}>
@@ -535,7 +575,7 @@ const DashboardContainer = createContainer(() => {
   const userSubscription = Meteor.subscribe('user');
   const loadingTeam = !teamSubscription.ready();
   const loadingUser = !userSubscription.ready();
-  const team = Teams.findOne({id: currentUser ? currentUser.profile.team_id : ''}) || false;
+  const team = Teams.findOne({id: currentUser ? currentUser.profile.auth.team_id : ''}) || null;
   
   return {
     currentUser: currentUser,

@@ -5,13 +5,16 @@ import { withStyles } from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 import Login from "/imports/ui/pages/Login";
+import Button from "material-ui/Button";
 import MainDashboardLogin from "/imports/ui/components/MainDashboardLogin";
+import {isAdmin} from '/imports/slack/helpers'
 
 const styles = theme => ({
   main: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: '1vh'
   },
   button: {
     margin: theme.spacing.unit,
@@ -35,9 +38,13 @@ const styles = theme => ({
 });
 
 class Registered extends Component {
+  
+  goToSlack() {
+    Router.redirect(this.props.currentUser.profile.auth.url);
+  }
+  
   render() {
     const {classes, currentUser} = this.props;
-    console.log(currentUser);
     return (
       <div>
         <div className={classes.main}>
@@ -46,15 +53,15 @@ class Registered extends Component {
               Registered
             </Typography>
             <Typography className={classes.content} type="body1" component="p">
-              {currentUser ? ` You have been registered to ${currentUser.profile.team}, you can now post messages on the slack board.` : ''}
+              {currentUser ? ` You have been registered to ${currentUser.profile.auth.team}, you can now post messages on the slack board.` : ''}
             </Typography>
+            <Button raised color="primary" className={classes.button} onClick={this.goToSlack}>
+              Go back to Slack
+            </Button>
           </Paper>
         </div>
         <Login title="Login with another Slack" />
-        {currentUser && (
-          currentUser.profile.user.is_admin ||
-          currentUser.profile.user.is_owner ||
-          currentUser.profile.user.is_primary_owner) ? <MainDashboardLogin /> :''}
+        {isAdmin(currentUser) ? <MainDashboardLogin /> :''}
       </div>
     );
   }

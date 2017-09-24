@@ -40,9 +40,7 @@ const getUserInfo = function (accessToken, userId) {
     response = HTTP.get(
       "https://slack.com/api/users.info",
       {params: {token: accessToken, user: userId}});
-  
-    console.log('getUserInfo', response.data);
-  
+    
     return response.data.ok && response.data;
   } catch (err) {
     throw _.extend(new Error("Failed to fetch info from Slack. " + err.message),
@@ -57,8 +55,6 @@ const getAuthInfo = function (accessToken) {
       "https://slack.com/api/auth.test",
       {params: {token: accessToken}});
     
-    console.log('getAuthInfo', response.data);
-  
     return response.data.ok && response.data;
   } catch (err) {
     throw _.extend(new Error("Failed to fetch info from Slack. " + err.message),
@@ -85,7 +81,6 @@ const getIdentity = function (accessToken) {
       "https://slack.com/api/users.identity",
       {params: {token: accessToken}});
     
-    console.log('getIdentity', response.data);
     return response.data.ok && response.data;
   } catch (err) {
     throw _.extend(new Error("Failed to fetch identity from Slack. " + err.message),
@@ -94,7 +89,6 @@ const getIdentity = function (accessToken) {
 };
 
 const oauth = function (payload) {
-  console.log(payload);
   try {
     if (!payload.identity.team_id) {
     }
