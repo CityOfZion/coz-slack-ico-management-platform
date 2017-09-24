@@ -303,7 +303,7 @@ class Dashboard extends Component {
     </FormControl>
   }
   
-  warnUserAboutSpam() {
+  warnUserAboutScam() {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
       <FormLabel className={classes.label}>This option sends the user a message when a suspicious private message has been spotted, specify your message below.</FormLabel>
@@ -448,7 +448,7 @@ class Dashboard extends Component {
   removeBannedMessages() {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
-      <FormLabel className={classes.label}>This option will remove any messages from banned users, public and private.</FormLabel>
+      <FormLabel className={classes.label}>This option will remove any messages from banned users in public channels.</FormLabel>
       <FormControlLabel
         control={
           <Switch
@@ -471,33 +471,34 @@ class Dashboard extends Component {
           </Typography>
           <Paper className={classes.paper} elevation={3}>
             {this.forceUserSignup()}
+            {this.state.forceUserSignup ? this.removeDmSpam() : ''}
           </Paper>
+          {this.state.forceUserSignup ?
+            <Paper className={classes.paper} elevation={3}>
+              {this.warnUserAboutScam()}
+              {this.state.warnUserAboutScam ? this.userScamWarningMessage() : ''}
+            </Paper>
+          : ''}
   
           <Paper className={classes.paper} elevation={3}>
             {this.warningMessageChannel()}
+          </Paper>
+          
+          <Paper className={classes.paper} elevation={3}>
+            {this.allowUserReport()}
+            {this.state.allowUserReport ? this.reportsNeededForBan() : ''}
           </Paper>
           
           {/*{this.askBeforeBan()}*/}
           <Paper className={classes.paper} elevation={3}>
             {this.removeBannedMessages()}
             {this.removePublicSpam()}
-            {this.removeDmSpam()}
             {this.triggerWords()}
           </Paper>
   
           <Paper className={classes.paper} elevation={3}>
             {this.allowReminders()}
             {this.state.allowReminders ? this.allowUserReminders() : ''}
-          </Paper>
-          
-          <Paper className={classes.paper} elevation={3}>
-          </Paper>
-  
-          <Paper className={classes.paper} elevation={3}>
-            {this.warnUserAboutSpam()}
-            {this.state.warnUserAboutScam ? this.userScamWarningMessage() : ''}
-            {this.allowUserReport()}
-            {this.state.allowUserReport ? this.reportsNeededForBan() : ''}
           </Paper>
   
           <Paper className={classes.paper} elevation={3}>

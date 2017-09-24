@@ -4,6 +4,7 @@ Router.route('/slack/events/request', function () {
   const req = this.request;
   const res = this.response;
   console.log(req.body);
+  
   res.end(JSON.stringify(req.body));
   
   console.log('------ SETTING MESSAGE FOR EVENT -------');

@@ -182,15 +182,9 @@ export default class Bot {
           // test if the message contains banned words
           if (this.team.settings.triggerWords.some(function(v) { return message.text.indexOf(v) >= 0; })) {
             // We found a match now let's delete
-            console.log('FOUND A MSG MATCHING ONE IF THE WORDS');
+            console.log('FOUND A MSG MATCHING ONE OF THE WORDS');
             
-            const data = {
-              token: (user && user.services.slack.accessToken) ? user.services.slack.accessToken : this.team.oauth.access_token,
-              ts: message.ts,
-              channel: message.channel,
-              as_user: true
-            };
-            this.web.chat.delete(JSON.stringify(data), (err, res) => {
+            this.web.chat.delete(message.ts, message.channel, (err, res) => {
               if(err || !res.ok) {
                 if(message.channel.charAt(0) === 'D' && this.team.settings.warnUserAboutScam) {
                   console.log('IT WAS A PRIVATE MESSAGE AND COULD NOT BE DELETED');

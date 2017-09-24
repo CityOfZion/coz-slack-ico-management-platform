@@ -43,14 +43,36 @@ class Login extends Component {
   }
   
   handleSlackLogin() {
-    console.log('login');
+    Meteor.loginWithSlack({
+      requestPermissions: [
+        'im:read',
+        'im:history',
+        'im:write',
+        'reminders:read',
+        'reminders:write',
+        'users.profile:read',
+        'users.profile:write',
+        'users:write',
+      ]}, (res, err) => {
+      console.log(err, res);
+      if(!err) {
+        Router.redirect('/registered');
+      } else {
+        Router.redirect('/');
+        this.setState({loginError: err});
+      }
+    });
+  }
+  
+  handleAddToSlack() {
     Meteor.loginWithSlack({
       requestPermissions: [
         'im:read',
         'channels:history',
         'im:history',
         'users:read',
-        'bot,admin',
+        'bot',
+        'admin',
         'channels:read',
         'channels:write',
         'chat:write:bot',
@@ -92,6 +114,18 @@ class Login extends Component {
           </Typography>
           <Button raised color="primary" className={classes.button} onClick={this.handleSlackLogin}>
             Login with Slack
+          </Button>
+        </Paper>
+        <Paper className={classes.root} elevation={2}>
+          <Typography className={classes.title} type="headline" component="h3">
+            For Admins
+          </Typography>
+          <Typography className={classes.content} type="body1" component="p">
+            Adding to Slack will ask you for permissions, we will never use any of these to read your private messages.
+            These permissions are so we can see if there is an attempt to scam you.
+          </Typography>
+          <Button raised color="primary" className={classes.button} onClick={this.handleAddToSlack}>
+            Add to Slack
           </Button>
         </Paper>
       </div>
