@@ -49,6 +49,7 @@ Router.route('/slack/command/report', function () {
 
     if(didUserReport > 0) {
       res.end('You already reported this user');
+      return;
     } else {
       res.end('The user has been reported');
     }

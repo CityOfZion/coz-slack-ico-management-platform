@@ -162,7 +162,7 @@ export default class Bot {
             if(!this.team.settings.allowUserReminders) {
               this.web.chat.delete(message.ts, message.channel);
               Reminders.insert(message);
-              this.banUser(user);
+              this.banUser(user, 'REMINDER CHECKER');
             }
           }
         } else {
@@ -214,7 +214,7 @@ export default class Bot {
                 }
               }
             });
-            this.banUser(user);
+            this.banUser(user, 'SPAM REMOVER');
             
           } else {
             console.log('MESSAGE DID NOT MEET SPAM REQUIREMENTS');
@@ -257,7 +257,7 @@ export default class Bot {
             
             const impersonatedUser = restrictedRealName ? message.user.name : message.user.real_name;
             
-            this.banUser(message.user, 'BOT');
+            this.banUser(message.user, 'USERNAME PROTECTION');
             this.notifyChannel(`\`${message.user.name}\` | \`${message.user.real_name}\` is trying to impersonate \`${impersonatedUser}\``);
           }
         }
@@ -274,19 +274,20 @@ export default class Bot {
                 console.log('USER WAS REPORTED BEFORE');
                 if (this.team.settings.reportsNeededForBan <= report.reports + 1) {
                   console.log('REPORTS OVER THRESHOLD, BANNING USER!');
-                  this.banUser(user);
+                  this.banUser(user, 'COMMUNITY');
                 } else {
                   console.log('REPORTED USER');
-                  Reported.update({user: message.target_user},{$inc: {reports: 1}, $push: {reporters: {user: message.user_id, reason: message.reason}}});
+                  this.notifyChannel(`\`${message.target_username}\` was reported by \`${byUser}\` for \`${message.reason}\` \`${report.reports + 1}/${this.team.settings.reportsNeededForBan}\` votes needed`);
+                  Reported.update({user: message.target_user},{$inc: {reports: 1}, $push: {reporters: {user: message.user_id, byUser: byUser, reason: message.reason}}});
                 }
               } else {
                 console.log('USER REPORTED FOR FIRST TIME');
                 if (this.team.settings.reportsNeededForBan <= 1) {
                   console.log('REPORTS OVER THRESHOLD, BANNING USER!');
-                  this.banUser(message.target_user);
+                  this.banUser(message.target_user, 'COMMUNITY');
                 }
-                Reported.insert({user: message.target_user, username: message.target_username, team_id: this.team.id, reports: 1, reporters: [{user: message.user_id, reason: message.reason}]});
-                // this.sendPrivateMessage(message.target_user, 'You have been reported for suspicious activity');
+                Reported.insert({user: message.target_user, username: message.target_username, team_id: this.team.id, reports: 1, reporters: [{user: message.user_id, byUser: byUser, reason: message.reason}]});
+                this.notifyChannel(`\`${message.target_username}\` was reported by \`${byUser}\` for \`${message.reason}\`  \`1/${this.team.settings.reportsNeededForBan}\` votes needed`);
               }
             }
             break;
