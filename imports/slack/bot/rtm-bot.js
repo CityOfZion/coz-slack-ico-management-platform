@@ -45,27 +45,29 @@ export default class Bot {
     this.web = new WebClient(team.oauth.access_token);
   }
   
-  banUser = user => {
+  banUser = (user, byUser) => {
     console.log('TRYING TO BAN USER', user.name);
     const isBanned = Banned.find({user: user.id, team_id: this.team.id}).count() > 0;
 
     if(!this.team.settings.askBeforeBan && !isBanned && user && !isAdmin(user)) {
       console.log('BANNING USER');
-      Banned.insert({user: user.id, team_id: this.team.id});
-      this.notifyChannel(`Banned a user with id ${user.id} and name ${user.name} `);
-      this.deactivateUser(user.id);
-      // this.sendPrivateMessage(user.id, 'You have been banned for suspicious activity');
+      Banned.insert({user: user.id, team_id: this.team.id, byUser: byUser});
+      this.notifyChannel(`\`${byUser}\` banned a user with id \`${user.id}\` and name \`${user.name}\` `);
+      this.deactivateUser(user.id, user.name, byUser);
+    } else {
+      console.log('USER ALREADY BANNED, WILL STILL DEACTIVATE');
+      this.deactivateUser(user.id, user.name, byUser);
     }
   };
 
-  deactivateUser = user => {
+  deactivateUser = (user, username, byUser) => {
     if(!this.team.settings.adminToken) return;
     const apiUrl = `${this.team.url}api/users.admin.setInactive?token=${this.team.settings.adminToken}&user=${user}`;
     console.log('calling url', apiUrl);
     HTTP.get(apiUrl, (err, res) => {
       console.log('tried to deactivate a user by api token', err, res);
       if(res.data.ok) {
-        this.notifyChannel(`Deactivated a user with id ${user}`);
+        this.notifyChannel(`\`${byUser}\` deactivated a user with id \`${user}\` and name \`${username}\``);
       }
     })
   };
@@ -146,7 +148,8 @@ export default class Bot {
         user = userResult.user;
       }
     }
-    
+    const byUser = user.name ? user.name : user.profile.identity.user.name;
+  
     switch(msgType) {
       case 'reminder_add':
         message.raw = message.text.substring(
@@ -243,14 +246,19 @@ export default class Bot {
       case 'team_join':
       case 'user_join':
       case 'user_change':
-        if(this.team.settings.removeDuplicateUserNames && !isAdmin(user)) {
+        if(this.team.settings.removeDuplicateUserNames && !isAdmin(user) && !isBanned) {
           console.log('DUPLICATE USERNAME PROTECTING ON');
           // Check if the new user is part of the restricted names
-          if(this.team.settings.restrictedUserNames.indexOf(message.user.name) >= 0 || this.team.settings.restrictedUserNames.indexOf(message.user.real_name) >= 0) {
+          const restrictedUsername = this.team.settings.restrictedUserNames.indexOf(message.user.name) >= 0;
+          const restrictedRealName = this.team.settings.restrictedUserNames.indexOf(message.user.real_name) >= 0;
+          if(restrictedUsername || restrictedRealName) {
             console.log('RESTRICTED NAME USED');
             // Found a duplicate now let's rename his profile since we can't remove them in the free version of slack
-            this.banUser(message.user);
-            this.notifyChannel(`Someone is trying to impersonate ${message.user.name} | ${message.user.real_name}`);
+            
+            const impersonatedUser = restrictedRealName ? message.user.name : message.user.real_name;
+            
+            this.banUser(message.user, 'BOT');
+            this.notifyChannel(`\`${message.user.name}\` | \`${message.user.real_name}\` is trying to impersonate \`${impersonatedUser}\``);
           }
         }
         break;
@@ -286,7 +294,12 @@ export default class Bot {
             console.log('NUKE COMMAND');
             
             if(isAdmin(user)) {
-              this.deactivateUser(message.target_user);
+              const data = {
+                id: message.target_user,
+                name: message.target_username
+              };
+              
+              this.banUser(data, byUser);
             }
             break;
         }
