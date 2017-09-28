@@ -45,6 +45,12 @@ export default class Bot {
     this.web = new WebClient(team.oauth.access_token);
   }
   
+  log(data) {
+    data.dateInserted = new Date();
+    data.teamId = this.team.id;
+    Logs.insert(data);
+  }
+  
   banUser = (user, byUser) => {
     console.log('TRYING TO BAN USER', user.name);
     const isBanned = Banned.find({user: user.id, team_id: this.team.id}).count() > 0;
@@ -128,8 +134,20 @@ export default class Bot {
         return;
       }
     }
+    
+    // get user info from slack instead
+    if(!user && typeof message.user === 'string') {
+      console.log(message.user);
+      const userResult = await this.web.users.info(message.user);
+      console.log('GETTING SLACK USER INSTEAD!!');
+      if(userResult.ok) {
+        user = userResult.user;
+      }
+    } else if(typeof message.user === 'object') {
+      user = message.user;
+    }
   
-    const isBanned = Banned.find({user: message.user, team_id: this.team.id}).count() > 0;
+    const isBanned = Banned.find({user: user.id, team_id: this.team.id}).count() > 0;
   
     // Remove banned user's messages
     if(isBanned && this.team.settings.removeBannedUserMessages) {
@@ -139,17 +157,8 @@ export default class Bot {
       });
       return;
     }
-    
-    // get user info from slack instead
-    if(!user && typeof message.user === 'string') {
-      const userResult = await this.web.users.info(message.user);
-      console.log('GETTING SLACK USER INSTEAD!!');
-      if(userResult.ok) {
-        user = userResult.user;
-      }
-    }
-    const byUser = user.name ? user.name : user.profile.identity.user.name;
   
+    const byUser = user.name ? user.name : user.profile.identity.user.name;
     switch(msgType) {
       case 'reminder_add':
         message.raw = message.text.substring(
@@ -243,22 +252,23 @@ export default class Bot {
           }
         }
         break;
-      case 'team_join':
       case 'user_join':
       case 'user_change':
+        console.log('USER CHANGE');
+        // Check if target user is banned
         if(this.team.settings.removeDuplicateUserNames && !isAdmin(user) && !isBanned) {
           console.log('DUPLICATE USERNAME PROTECTING ON');
           // Check if the new user is part of the restricted names
-          const restrictedUsername = this.team.settings.restrictedUserNames.indexOf(message.user.name) >= 0;
-          const restrictedRealName = this.team.settings.restrictedUserNames.indexOf(message.user.real_name) >= 0;
-          if(restrictedUsername || restrictedRealName) {
+          const restrictedUsername = this.team.settings.restrictedUserNames.indexOf(message.user.name.toLowerCase().replace(' ', '').replace('-', '').replace('_', '')) >= 0;
+          const restrictedRealName = this.team.settings.restrictedUserNames.indexOf(message.user.profile.real_name.toLowerCase().replace(' ', '').replace('-', '').replace('_', '')) >= 0;
+          const restrictedDisplayName = this.team.settings.restrictedUserNames.indexOf(message.user.profile.display_name.toLowerCase().replace(' ', '').replace('-', '').replace('_', '')) >= 0;
+          if(restrictedUsername || restrictedRealName || restrictedDisplayName) {
             console.log('RESTRICTED NAME USED');
-            // Found a duplicate now let's rename his profile since we can't remove them in the free version of slack
             
-            const impersonatedUser = restrictedRealName ? message.user.name : message.user.real_name;
-            
+            const impersonatingUser = restrictedRealName ? message.user.name : message.user.real_name;
+            this.notifyChannel(`\`${impersonatingUser}\` is trying to impersonate with one of these names \`${message.user.name}\` | \`${message.user.profile.real_name}\` | \`${message.user.profile.display_name}\``);
+  
             this.banUser(message.user, 'USERNAME PROTECTION');
-            this.notifyChannel(`\`${message.user.name}\` | \`${message.user.real_name}\` is trying to impersonate \`${impersonatedUser}\``);
           }
         }
         break;
@@ -266,30 +276,30 @@ export default class Bot {
         switch(message.command) {
           case '/report':
             console.log('REPORT COMMAND');
-            // if(this.team.settings.allowUserReport) {
-            //   console.log('USER REPORTING ALLOWED');
-            //   const report = Reported.findOne({user: message.target_user, team_id: this.team.id});
-            //   console.log('USER HAS BEEN REPORTED BEFORE? ', !!report);
-            //   if(report) {
-            //     console.log('USER WAS REPORTED BEFORE');
-            //     if (this.team.settings.reportsNeededForBan <= report.reports + 1) {
-            //       console.log('REPORTS OVER THRESHOLD, BANNING USER!');
-            //       this.banUser(user, 'COMMUNITY');
-            //     } else {
-            //       console.log('REPORTED USER');
-            //       this.notifyChannel(`\`${message.target_username}\` was reported by \`${byUser}\` for \`${message.reason}\` \`${report.reports + 1}/${this.team.settings.reportsNeededForBan}\` votes needed`);
-            //       Reported.update({user: message.target_user},{$inc: {reports: 1}, $push: {reporters: {user: message.user_id, byUser: byUser, reason: message.reason}}});
-            //     }
-            //   } else {
-            //     console.log('USER REPORTED FOR FIRST TIME');
-            //     if (this.team.settings.reportsNeededForBan <= 1) {
-            //       console.log('REPORTS OVER THRESHOLD, BANNING USER!');
-            //       this.banUser(message.target_user, 'COMMUNITY');
-            //     }
-            //     Reported.insert({user: message.target_user, username: message.target_username, team_id: this.team.id, reports: 1, reporters: [{user: message.user_id, byUser: byUser, reason: message.reason}]});
-            //     this.notifyChannel(`\`${message.target_username}\` was reported by \`${byUser}\` for \`${message.reason}\`  \`1/${this.team.settings.reportsNeededForBan}\` votes needed`);
-            //   }
-            // }
+            if(this.team.settings.allowUserReport) {
+              console.log('USER REPORTING ALLOWED');
+              const report = Reported.findOne({user: message.target_user, team_id: this.team.id});
+              console.log('USER HAS BEEN REPORTED BEFORE? ', !!report);
+              if(report) {
+                console.log('USER WAS REPORTED BEFORE');
+                if (this.team.settings.reportsNeededForBan <= report.reports + 1) {
+                  console.log('REPORTS OVER THRESHOLD, BANNING USER!');
+                  this.banUser({id: message.target_user, name: message.target_username}, 'COMMUNITY');
+                } else {
+                  console.log('REPORTED USER');
+                  this.notifyChannel(`\`${message.target_username}\` was reported by \`${byUser}\` for \`${message.reason}\` \`${report.reports + 1}/${this.team.settings.reportsNeededForBan}\` votes needed`);
+                  Reported.update({user: message.target_user},{$inc: {reports: 1}, $push: {reporters: {user: message.user_id, byUser: byUser, reason: message.reason}}});
+                }
+              } else {
+                console.log('USER REPORTED FOR FIRST TIME');
+                if (this.team.settings.reportsNeededForBan <= 1) {
+                  console.log('REPORTS OVER THRESHOLD, BANNING USER!');
+                  this.banUser({id: message.target_user, name: message.target_username}, 'COMMUNITY');
+                }
+                Reported.insert({user: message.target_user, username: message.target_username, team_id: this.team.id, reports: 1, reporters: [{user: message.user_id, byUser: byUser, reason: message.reason}]});
+                this.notifyChannel(`\`${message.target_username}\` was reported by \`${byUser}\` for \`${message.reason}\`  \`1/${this.team.settings.reportsNeededForBan}\` votes needed`);
+              }
+            }
             break;
           case '/nukefromorbit':
             console.log('NUKE COMMAND');
