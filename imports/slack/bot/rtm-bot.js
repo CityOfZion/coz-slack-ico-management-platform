@@ -51,7 +51,7 @@ export default class Bot {
 
     if(!this.team.settings.askBeforeBan && !isBanned && user && !isAdmin(user)) {
       console.log('BANNING USER');
-      Banned.insert({user: user.id, team_id: this.team.id, byUser: byUser});
+      Banned.insert({user: user.id, name: user.name, team_id: this.team.id, byUser: byUser});
       this.notifyChannel(`\`${byUser}\` banned a user with id \`${user.id}\` and name \`${user.name}\` `);
       this.deactivateUser(user.id, user.name, byUser);
     } else {
@@ -266,30 +266,30 @@ export default class Bot {
         switch(message.command) {
           case '/report':
             console.log('REPORT COMMAND');
-            if(this.team.settings.allowUserReport) {
-              console.log('USER REPORTING ALLOWED');
-              const report = Reported.findOne({user: message.target_user, team_id: this.team.id});
-              console.log('USER HAS BEEN REPORTED BEFORE? ', !!report);
-              if(report) {
-                console.log('USER WAS REPORTED BEFORE');
-                if (this.team.settings.reportsNeededForBan <= report.reports + 1) {
-                  console.log('REPORTS OVER THRESHOLD, BANNING USER!');
-                  this.banUser(user, 'COMMUNITY');
-                } else {
-                  console.log('REPORTED USER');
-                  this.notifyChannel(`\`${message.target_username}\` was reported by \`${byUser}\` for \`${message.reason}\` \`${report.reports + 1}/${this.team.settings.reportsNeededForBan}\` votes needed`);
-                  Reported.update({user: message.target_user},{$inc: {reports: 1}, $push: {reporters: {user: message.user_id, byUser: byUser, reason: message.reason}}});
-                }
-              } else {
-                console.log('USER REPORTED FOR FIRST TIME');
-                if (this.team.settings.reportsNeededForBan <= 1) {
-                  console.log('REPORTS OVER THRESHOLD, BANNING USER!');
-                  this.banUser(message.target_user, 'COMMUNITY');
-                }
-                Reported.insert({user: message.target_user, username: message.target_username, team_id: this.team.id, reports: 1, reporters: [{user: message.user_id, byUser: byUser, reason: message.reason}]});
-                this.notifyChannel(`\`${message.target_username}\` was reported by \`${byUser}\` for \`${message.reason}\`  \`1/${this.team.settings.reportsNeededForBan}\` votes needed`);
-              }
-            }
+            // if(this.team.settings.allowUserReport) {
+            //   console.log('USER REPORTING ALLOWED');
+            //   const report = Reported.findOne({user: message.target_user, team_id: this.team.id});
+            //   console.log('USER HAS BEEN REPORTED BEFORE? ', !!report);
+            //   if(report) {
+            //     console.log('USER WAS REPORTED BEFORE');
+            //     if (this.team.settings.reportsNeededForBan <= report.reports + 1) {
+            //       console.log('REPORTS OVER THRESHOLD, BANNING USER!');
+            //       this.banUser(user, 'COMMUNITY');
+            //     } else {
+            //       console.log('REPORTED USER');
+            //       this.notifyChannel(`\`${message.target_username}\` was reported by \`${byUser}\` for \`${message.reason}\` \`${report.reports + 1}/${this.team.settings.reportsNeededForBan}\` votes needed`);
+            //       Reported.update({user: message.target_user},{$inc: {reports: 1}, $push: {reporters: {user: message.user_id, byUser: byUser, reason: message.reason}}});
+            //     }
+            //   } else {
+            //     console.log('USER REPORTED FOR FIRST TIME');
+            //     if (this.team.settings.reportsNeededForBan <= 1) {
+            //       console.log('REPORTS OVER THRESHOLD, BANNING USER!');
+            //       this.banUser(message.target_user, 'COMMUNITY');
+            //     }
+            //     Reported.insert({user: message.target_user, username: message.target_username, team_id: this.team.id, reports: 1, reporters: [{user: message.user_id, byUser: byUser, reason: message.reason}]});
+            //     this.notifyChannel(`\`${message.target_username}\` was reported by \`${byUser}\` for \`${message.reason}\`  \`1/${this.team.settings.reportsNeededForBan}\` votes needed`);
+            //   }
+            // }
             break;
           case '/nukefromorbit':
             console.log('NUKE COMMAND');
