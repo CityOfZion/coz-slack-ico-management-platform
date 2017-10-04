@@ -58,7 +58,7 @@ export default class Bot {
     if(!this.team.settings.askBeforeBan && !isBanned && user && !isAdmin(user)) {
       console.log('BANNING USER');
       Banned.insert({user: user.id, name: user.name, team_id: this.team.id, byUser: byUser});
-      this.notifyChannel(`\`${byUser}\` banned a user with id \`${user.id}\` and name \`${user.name}\` `);
+      this.notifyChannel(`\`${byUser}\` banned a user with id \`${user.id}\` and name \`${user.name}\` <@${user.id}|${user.name}> `);
       this.deactivateUser(user.id, user.name, byUser);
     } else {
       console.log('USER ALREADY BANNED, WILL STILL DEACTIVATE');
@@ -73,7 +73,7 @@ export default class Bot {
     HTTP.get(apiUrl, (err, res) => {
       console.log('tried to deactivate a user by api token', err, res);
       if(res.data.ok) {
-        this.notifyChannel(`\`${byUser}\` deactivated a user with id \`${user}\` and name \`${username}\``);
+        this.notifyChannel(`\`${byUser}\` deactivated a user with id \`${user}\` and name \`${username}\` <@${user}|${username}> `);
       }
     })
   };
@@ -287,7 +287,7 @@ export default class Bot {
                   this.banUser({id: message.target_user, name: message.target_username}, 'COMMUNITY');
                 } else {
                   console.log('REPORTED USER');
-                  this.notifyChannel(`\`${message.target_username}\` was reported by \`${byUser}\` for \`${message.reason}\` \`${report.reports + 1}/${this.team.settings.reportsNeededForBan}\` votes needed`);
+                  this.notifyChannel(`\`${message.target_username}\` with id \`${message.target_user}\` ${message.user_string} was reported by \`${byUser}\` for \`${message.reason}\` \`${report.reports + 1}/${this.team.settings.reportsNeededForBan}\` votes needed`);
                   Reported.update({user: message.target_user},{$inc: {reports: 1}, $push: {reporters: {user: message.user_id, byUser: byUser, reason: message.reason}}});
                 }
               } else {
@@ -297,7 +297,7 @@ export default class Bot {
                   this.banUser({id: message.target_user, name: message.target_username}, 'COMMUNITY');
                 }
                 Reported.insert({user: message.target_user, username: message.target_username, team_id: this.team.id, reports: 1, reporters: [{user: message.user_id, byUser: byUser, reason: message.reason}]});
-                this.notifyChannel(`\`${message.target_username}\` was reported by \`${byUser}\` for \`${message.reason}\`  \`1/${this.team.settings.reportsNeededForBan}\` votes needed`);
+                this.notifyChannel(`\`${message.target_username}\` with id \`${message.target_user}\` ${message.user_string} was reported by \`${byUser}\` for \`${message.reason}\`  \`1/${this.team.settings.reportsNeededForBan}\` votes needed`);
               }
             }
             break;

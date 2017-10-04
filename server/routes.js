@@ -59,6 +59,7 @@ Router.route('/slack/command/report', function () {
       res.end('The user has been reported');
     }
     
+    data.user_string = userString;
     data.target_user = userId;
     data.target_username = username;
     data.reason = reason;
@@ -92,6 +93,8 @@ Router.route('/slack/command/nukefromorbit', async function () {
     const {userId, username} = parseUserName(userString);
     data.target_user = userId;
     data.target_username = username;
+    data.user_string = userString;
+  
   }
   //
   // const userResult = await this.web.users.info(data.target_user);
