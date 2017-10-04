@@ -64,7 +64,7 @@ const styles = theme => ({
   }
 });
 
-class BotSettings extends Component {
+class SpamBotSettings extends Component {
   
   constructor(props) {
     super(props);
@@ -123,6 +123,7 @@ class BotSettings extends Component {
     delete data.saving;
     delete data.triggerWord;
     delete data.restrictedUserName;
+    delete data.suspiciousEmailDomain
     
     Meteor.call('saveSettings', data, (err, res) => {
       this.setState({triggerWord: ''});
@@ -654,11 +655,11 @@ class BotSettings extends Component {
   }
 }
 
-BotSettings.propTypes = {
+SpamBotSettings.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-const BotSettingsContainer = createContainer(() => {
+const SpamBotSettingsContainer = createContainer(() => {
   const currentUser = Meteor.user();
   const teamSubscription = Meteor.subscribe('getTeam');
   const userSubscription = Meteor.subscribe('user');
@@ -672,6 +673,6 @@ const BotSettingsContainer = createContainer(() => {
     team: team,
     loadingTeam: loadingTeam
   };
-}, BotSettings);
+}, SpamBotSettings);
 
-export default withStyles(styles)(BotSettingsContainer);
+export default withStyles(styles)(SpamBotSettingsContainer);

@@ -84,6 +84,27 @@ export default class Bot {
     }
   };
   
+  setPrice = () => {
+    console.log('Fetching price');
+    HTTP.call('GET', `https://api.coinmarketcap.com/v1/ticker/${this.team.settings.priceAnnouncementsCoin}/?convert=USD`, (err, res) => {
+      if(!err && !res.data.error) {
+        const price = res.data[0];
+        console.log('PRICE', price);
+        const message = `${price.symbol} $${price.price_usd} | B${price.price_btc} | 1HCHANGE ${price.percent_change_1h}%`;
+        console.log('MESSAGE', message);
+        if(this.team.settings.priceAnnouncementInTopic) {
+          this.web.channels.setTopic(this.team.settings.priceAnnouncementsChannel, message, (err, res) => {
+            console.log(err, res);
+          });
+        } else {
+          this.web.chat.postMessage(this.team.settings.priceAnnouncementsChannel, message, (err, res) => {
+            console.log(err, res);
+          });
+        }
+      }
+    });
+  };
+  
   sendPrivateMessage = (userId, message) => {
     this.web.im.open(this.team.oauth.bot.bot_user_id, (err, res) => {
       console.log(err, res);
@@ -105,12 +126,14 @@ export default class Bot {
     this.messageEvent();
     this.authenticateEvent();
     this.disconnectEvent();
+    this.startPriceBot();
   }
   
   restart() {
     this.rtm.disconnect();
     this.getTeam();
     this.rtm.start();
+    this.startPriceBot();
   }
   
   async handleMessageEvent(message) {
@@ -291,8 +314,10 @@ export default class Bot {
         
         if(this.team.settings.removeOtherSlackBannedUserEmails) {
           const bannedEmail = Banned.find({"user.profile.email": message.user.email}).count();
-          this.notifyChannel(`User with id \`${message.user.id}\` and name \`${message.user.name}\` has been preemptively banned as the email address was used to spam another slack`);
-          this.banUser(message.user, 'USER WAS BANNED ON OTHER SLACK');
+          if(bannedEmail > 0) {
+            this.notifyChannel(`User with id \`${message.user.id}\` and name \`${message.user.name}\` has been preemptively banned as the email address was used to spam another slack`);
+            this.banUser(message.user, 'USER WAS BANNED ON OTHER SLACK');
+          }
         }
         break;
       case 'command':
@@ -356,6 +381,15 @@ export default class Bot {
       }});
       this.rtm.reconnect();
     }));
+  }
+  
+  startPriceBot() {
+    if(this.getPriceInterval) Meteor.clearInterval(this.getPriceInterval);
+  
+    if(this.team.settings.enablePriceAnnouncements) {
+      console.log(this.team.settings.priceAnnouncementsInterval);
+      this.getPriceInterval = Meteor.setInterval(this.setPrice, this.team.settings.priceAnnouncementsInterval * 1000 * 60);
+    }
   }
   
   authenticateEvent() {

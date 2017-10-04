@@ -10,7 +10,7 @@ const styles = theme => ({
     minHeight: '96vh',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
+    justifyContent: 'top',
     alignItems: 'center'
   },
   root: {

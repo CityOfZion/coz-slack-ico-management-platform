@@ -18,7 +18,6 @@ import {createContainer} from 'meteor/react-meteor-data';
 const styles = theme => ({
   main: {
     display: 'flex',
-    justifyContent: 'center',
     alignItems: 'center',
     marginBottom: '1vh'
   },
@@ -91,6 +90,9 @@ class BotSettings extends Component {
           <Typography className={classes.title} type="headline" component="h3">
             User Management
           </Typography>
+          <Paper className={classes.paper} elevation={3}>
+            Coming soon
+          </Paper>
         </Paper>
       </div>
     );
@@ -110,7 +112,7 @@ const BotSettingsContainer = createContainer(() => {
   const loadingBanned = !bannedSubscription.ready();
   const loadingUser = !userSubscription.ready();
   const team = Teams.findOne({id: currentUser ? currentUser.profile.auth.team_id : ''}) || null;
-  const banned = Banned.find({});
+  const banned = Banned.find({}).fetch();
   
   return {
     currentUser: currentUser,
