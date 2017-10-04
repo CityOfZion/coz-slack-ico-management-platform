@@ -57,7 +57,7 @@ export default class Bot {
 
     if(!this.team.settings.askBeforeBan && !isBanned && user && !isAdmin(user)) {
       console.log('BANNING USER');
-      Banned.insert({user: user.id, name: user.name, team_id: this.team.id, byUser: byUser});
+      Banned.insert({user: user, name: user.name, team_id: this.team.id, byUser: byUser});
       this.notifyChannel(`\`${byUser}\` banned a user with id \`${user.id}\` and name \`${user.name}\` <@${user.id}|${user.name}> `);
       this.deactivateUser(user.id, user.name, byUser);
     } else {
@@ -279,6 +279,20 @@ export default class Bot {
   
             this.banUser(message.user, 'USERNAME PROTECTION');
           }
+        }
+        
+        if(this.team.settings.removeSuspiciousEmailDomainUsers) {
+          if(this.team.settings.suspiciousEmailDomains.indexOf(user.profile.email) >= 0) {
+            this.notifyChannel(`User with id \`${message.user.id}\` and name \`${message.user.name}\` has been preemptively banned for using a banned email domain`);
+    
+            this.banUser(message.user, 'EMAIL DOMAIN PROTECTION');
+          }
+        }
+        
+        if(this.team.settings.removeOtherSlackBannedUserEmails) {
+          const bannedEmail = Banned.find({"user.profile.email": message.user.email}).count();
+          this.notifyChannel(`User with id \`${message.user.id}\` and name \`${message.user.name}\` has been preemptively banned as the email address was used to spam another slack`);
+          this.banUser(message.user, 'USER WAS BANNED ON OTHER SLACK');
         }
         break;
       case 'command':

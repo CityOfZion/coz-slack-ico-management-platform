@@ -9,7 +9,9 @@ const styles = theme => ({
     padding: '0 2vw',
     minHeight: '96vh',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   root: {
     marginTop: theme.spacing.unit * 3
@@ -43,7 +45,7 @@ class MainLayout extends Component {
         <img src="/images/Coz-logo.svg" alt="City of Zion" className={classes.cozLogo} />
           <p className={classes.subtitle}>A Slack solution against Spam and Scam!</p>
         </div>
-        <div style={{order: 2}}>
+        <div style={{order: 2, textAlign: 'center'}}>
         {content}
         </div>
       </div>
