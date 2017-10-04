@@ -147,6 +147,15 @@ export default class Bot {
       user = message.user;
     }
   
+  
+    let targetUser = {};
+    if(typeof message.target_user === 'string') {
+      const userResult = await this.web.users.info(message.target_user);
+      if(userResult.ok) {
+        targetUser = userResult.user;
+      }
+    }
+    
     const isBanned = Banned.find({user: user.id, team_id: this.team.id}).count() > 0;
   
     // Remove banned user's messages
@@ -252,7 +261,7 @@ export default class Bot {
           }
         }
         break;
-      case 'user_join':
+      case 'team_join':
       case 'user_change':
         console.log('USER CHANGE');
         // Check if target user is banned
@@ -284,7 +293,9 @@ export default class Bot {
                 console.log('USER WAS REPORTED BEFORE');
                 if (this.team.settings.reportsNeededForBan <= report.reports + 1) {
                   console.log('REPORTS OVER THRESHOLD, BANNING USER!');
-                  this.banUser({id: message.target_user, name: message.target_username}, 'COMMUNITY');
+                  this.notifyChannel(`\`${message.target_username}\` with id \`${message.target_user}\` ${message.user_string} was reported by \`${byUser}\` for \`${message.reason}\` \`${report.reports + 1}/${this.team.settings.reportsNeededForBan}\` votes needed`);
+                  Reported.update({user: message.target_user},{$inc: {reports: 1}, $push: {reporters: {user: message.user_id, byUser: byUser, reason: message.reason}}});
+                  this.banUser(targetUser, 'COMMUNITY');
                 } else {
                   console.log('REPORTED USER');
                   this.notifyChannel(`\`${message.target_username}\` with id \`${message.target_user}\` ${message.user_string} was reported by \`${byUser}\` for \`${message.reason}\` \`${report.reports + 1}/${this.team.settings.reportsNeededForBan}\` votes needed`);
@@ -294,7 +305,7 @@ export default class Bot {
                 console.log('USER REPORTED FOR FIRST TIME');
                 if (this.team.settings.reportsNeededForBan <= 1) {
                   console.log('REPORTS OVER THRESHOLD, BANNING USER!');
-                  this.banUser({id: message.target_user, name: message.target_username}, 'COMMUNITY');
+                  this.banUser(targetUser, 'COMMUNITY');
                 }
                 Reported.insert({user: message.target_user, username: message.target_username, team_id: this.team.id, reports: 1, reporters: [{user: message.user_id, byUser: byUser, reason: message.reason}]});
                 this.notifyChannel(`\`${message.target_username}\` with id \`${message.target_user}\` ${message.user_string} was reported by \`${byUser}\` for \`${message.reason}\`  \`1/${this.team.settings.reportsNeededForBan}\` votes needed`);
@@ -305,12 +316,7 @@ export default class Bot {
             console.log('NUKE COMMAND');
             
             if(isAdmin(user)) {
-              const data = {
-                id: message.target_user,
-                name: message.target_username
-              };
-              
-              this.banUser(data, byUser);
+              this.banUser(targetUser, byUser);
             }
             break;
         }
