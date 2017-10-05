@@ -44,6 +44,7 @@ class Registered extends Component {
   }
   
   render() {
+    console.log(Meteor.user())
     const {classes, currentUser} = this.props;
     return (
       <div>

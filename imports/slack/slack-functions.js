@@ -23,9 +23,6 @@ const getAccess = function (query) {
       {response: err.response});
   }
   
-  console.log('----------SLACK OAUTH RESPONSE DATA---------');
-  console.log(response.data);
-  
   if (!response.data.ok) { // if the http response was a json object with an error attribute
     throw new Error("Failed to complete OAuth handshake with Slack. " + response.data.error);
   } else {
