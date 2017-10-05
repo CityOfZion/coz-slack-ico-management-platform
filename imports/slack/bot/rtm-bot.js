@@ -57,7 +57,7 @@ export default class Bot {
 
     if(!this.team.settings.askBeforeBan && !isBanned && user && !isAdmin(user)) {
       console.log('BANNING USER');
-      Banned.insert({user: user, name: user.name, team_id: this.team.id, byUser: byUser});
+      Banned.insert({user: user, name: user.name, team_id: this.team.id, byUser: byUser, banDate: new Date()});
       this.notifyChannel(`\`${byUser}\` banned a user with id \`${user.id}\` and name \`${user.name}\` <@${user.id}|${user.name}> `);
       this.deactivateUser(user.id, user.name, byUser);
     } else {
@@ -179,7 +179,7 @@ export default class Bot {
       }
     }
     
-    const isBanned = Banned.find({user: user.id, team_id: this.team.id}).count() > 0;
+    const isBanned = Banned.find({"user.id": user.id, team_id: this.team.id}).count() > 0;
   
     // Remove banned user's messages
     if(isBanned && this.team.settings.removeBannedUserMessages) {
