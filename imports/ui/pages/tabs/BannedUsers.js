@@ -1,17 +1,26 @@
 import {Meteor} from 'meteor/meteor';
 import React, {Component} from 'react';
-import Button from 'material-ui/Button'
 import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
-import Switch from 'material-ui/Switch';
-import {FormLabel, FormControl, FormControlLabel} from 'material-ui/Form';
-import Chip from 'material-ui/Chip';
-import TextField from 'material-ui/TextField';
-import { MenuItem } from 'material-ui/Menu';
-import Select from 'material-ui/Select';
-import Input, { InputLabel } from 'material-ui/Input';
+import Button from 'material-ui/Button'
+
+import {
+  SortingState,
+  LocalSorting,
+  PagingState,
+  FilteringState,
+  LocalFiltering,
+  LocalPaging,
+} from '@devexpress/dx-react-grid';
+import {
+  Grid,
+  TableView,
+  TableHeaderRow,
+  PagingPanel,
+  TableFilterRow,
+} from '@devexpress/dx-react-grid-material-ui';
 
 import {createContainer} from 'meteor/react-meteor-data';
 
@@ -61,58 +70,144 @@ const styles = theme => ({
   }
 });
 
-class BotSettings extends Component {
+class BannedUsers extends Component {
   
   constructor(props) {
     super(props);
+    
+    this.state = {
+      columns: [
+        { name: 'date', title: 'Date' },
+        { name: 'realName', title: 'Real Name' },
+        { name: 'name', title: 'Name' },
+        { name: 'displayName', title: 'Display Name' },
+        { name: 'byUser', title: 'By User' },
+        { name: 'action', title: 'Action' },
+      ],
+      rows: [],
+      totalCount: 0,
+      sorting: [{ columnName: 'name', direction: 'asc' }],
+      filters: [],
+      allowedPageSizes: [5, 10, 15, 0],
+      loading: true
+    };
   }
+  
+  changeSorting = sorting => this.setState({ sorting });
   
   componentDidMount() {
     this.checkSubs(this.props);
   }
   
+  changeCurrentPage = currentPage => this.setState({loading: true, currentPage,});
+  
+  changeFilters = filters => this.setState({ filters });
+  
+  unBan = (userId, username) => {
+    Meteor.call('enableUser', userId, this.props.team.id, username, (err, res) => {
+      console.log(err, res);
+    })
+  };
+  
+  parseUsers(users) {
+    if(users.length > 0) {
+      const rows = [];
+      const dateFormat = require('dateformat');
+  
+      users.forEach(user => {
+        const row = {
+          date: dateFormat(user.banDate.toString(), 'yyyy-mm-dd hh:mm'),
+          realName: user.user.profile.real_name,
+          name: user.user.name,
+          displayName: user.user.profile.display_name,
+          byUser: user.byUser,
+          action: <Button raised color="primary" onClick={e => this.unBan(user.user.id, user.user.name)}>UNBAN</Button>
+        };
+        
+        rows.push(row);
+      });
+      
+      this.setState({rows: rows, totalCount: rows.length});
+    }
+  }
+  
   componentWillReceiveProps(nextProps) {
     if (nextProps.loadingUser !== this.props.loadingUser) this.checkSubs(nextProps);
     if(nextProps.loadingTeam !== this.props.loadingTeam) this.checkSubs(nextProps);
+    if(nextProps.loadingBanned !== this.props.loadingBanned) this.checkSubs(nextProps);
   }
   
   checkSubs(props) {
     if (!props.loadingTeam && props.team) {
       this.setState({...props.team.settings});
     }
+    
+    if(!props.loadingBanned && props.banned) {
+      this.parseUsers(props.banned);
+    }
   }
   
   render() {
     const {classes} = this.props;
+    const { rows, columns, allowedPageSizes } = this.state;
+    
     return (
       <div className={classes.main}>
         <Paper className={classes.root} elevation={3}>
           <Typography className={classes.title} type="headline" component="h3">
             User Management
           </Typography>
-          <Paper className={classes.paper} elevation={3}>
-            Coming soon
-          </Paper>
+          <Grid
+            rows={rows}
+            columns={columns}>
+            <FilteringState
+              filters={this.state.filters}
+              onFiltersChange={this.changeFilters}
+            />
+            <LocalFiltering />
+            <SortingState
+              sorting={this.state.sorting}
+              onSortingChange={this.changeSorting}
+            />
+            <LocalSorting />
+  
+            <PagingState
+              defaultCurrentPage={0}
+              defaultPageSize={5}
+            />
+            <LocalPaging />
+  
+            <TableView />
+            <TableFilterRow />
+            <TableHeaderRow allowSorting/>
+            <PagingPanel
+              allowedPageSizes={allowedPageSizes}
+            />
+          </Grid>
         </Paper>
       </div>
     );
   }
 }
 
-BotSettings.propTypes = {
+BannedUsers.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-const BotSettingsContainer = createContainer(() => {
+const BannedUsersContainer = createContainer(() => {
   const currentUser = Meteor.user();
   const teamSubscription = Meteor.subscribe('getTeam');
   const userSubscription = Meteor.subscribe('user');
   const bannedSubscription = Meteor.subscribe('banned');
+  
   const loadingTeam = !teamSubscription.ready();
   const loadingBanned = !bannedSubscription.ready();
   const loadingUser = !userSubscription.ready();
+  
   const team = Teams.findOne({id: currentUser ? currentUser.profile.auth.team_id : ''}) || null;
-  const banned = Banned.find({}).fetch();
+  const banned = Banned.find({});
+  const bannedCount = banned.count();
+  const bannedFetch = banned.fetch();
   
   return {
     currentUser: currentUser,
@@ -120,8 +215,9 @@ const BotSettingsContainer = createContainer(() => {
     loadingBanned: loadingBanned,
     team: team,
     loadingTeam: loadingTeam,
-    banned: banned
+    banned: bannedFetch,
+    bannedCount: bannedCount
   };
-}, BotSettings);
+}, BannedUsers);
 
-export default withStyles(styles)(BotSettingsContainer);
+export default withStyles(styles)(BannedUsersContainer);

@@ -78,6 +78,19 @@ export default class Bot {
     })
   };
   
+  enableUser = (user, username) => {
+    Banned.remove({"user.id": user, team_id: this.team.id});
+    if(!this.team.settings.adminToken) return;
+    const apiUrl = `${this.team.url}api/users.admin.setRegular?token=${this.team.settings.adminToken}&user=${user}`;
+    console.log('calling url', apiUrl);
+    HTTP.get(apiUrl, (err, res) => {
+      console.log('tried to reactivate a user by api token', err, res);
+      if(res.data.ok) {
+        this.notifyChannel(`Reactivated a user with id \`${user}\` and name \`${username}\` <@${user}|${username}> `);
+      }
+    })
+  };
+  
   notifyChannel = message => {
     if(this.team.settings.warningMessageChannel !== '') {
       this.web.chat.postMessage(this.team.settings.warningMessageChannel, message);
@@ -89,16 +102,12 @@ export default class Bot {
     HTTP.call('GET', `https://api.coinmarketcap.com/v1/ticker/${this.team.settings.priceAnnouncementsCoin}/?convert=USD`, (err, res) => {
       if(!err && !res.data.error) {
         const price = res.data[0];
-        console.log('PRICE', price);
         const message = `${price.symbol} $${price.price_usd} | B${price.price_btc} | 1HCHANGE ${price.percent_change_1h}%`;
-        console.log('MESSAGE', message);
         if(this.team.settings.priceAnnouncementInTopic) {
           this.web.channels.setTopic(this.team.settings.priceAnnouncementsChannel, message, (err, res) => {
-            console.log(err, res);
           });
         } else {
           this.web.chat.postMessage(this.team.settings.priceAnnouncementsChannel, message, (err, res) => {
-            console.log(err, res);
           });
         }
       }
@@ -304,7 +313,7 @@ export default class Bot {
           }
         }
         
-        if(this.team.settings.removeSuspiciousEmailDomainUsers) {
+        if(this.team.settings.removeSuspiciousEmailDomainUsers && !isAdmin(user) && !isBanned) {
           if(this.team.settings.suspiciousEmailDomains.indexOf(user.profile.email) >= 0) {
             this.notifyChannel(`User with id \`${message.user.id}\` and name \`${message.user.name}\` has been preemptively banned for using a banned email domain`);
     
@@ -312,7 +321,7 @@ export default class Bot {
           }
         }
         
-        if(this.team.settings.removeOtherSlackBannedUserEmails) {
+        if(this.team.settings.removeOtherSlackBannedUserEmails && !isAdmin(user) && !isBanned) {
           const bannedEmail = Banned.find({"user.profile.email": message.user.email}).count();
           if(bannedEmail > 0) {
             this.notifyChannel(`User with id \`${message.user.id}\` and name \`${message.user.name}\` has been preemptively banned as the email address was used to spam another slack`);
