@@ -51,7 +51,7 @@ export default class Bot {
     Logs.insert(data);
   }
   
-  banUser = (user, byUser) => {
+  banUser = (user, byUser, softBan = false) => {
     console.log('TRYING TO BAN USER', user.name);
     const isBanned = Banned.find({user: user.id, team_id: this.team.id}).count() > 0;
 
@@ -59,10 +59,10 @@ export default class Bot {
       console.log('BANNING USER');
       Banned.insert({user: user, name: user.name, team_id: this.team.id, byUser: byUser, banDate: new Date()});
       this.notifyChannel(`\`${byUser}\` banned a user with id \`${user.id}\` and name \`${user.name}\` <@${user.id}|${user.name}> `);
-      this.deactivateUser(user.id, user.name, byUser);
+      if(!softBan) this.deactivateUser(user.id, user.name, byUser);
     } else {
       console.log('USER ALREADY BANNED, WILL STILL DEACTIVATE');
-      this.deactivateUser(user.id, user.name, byUser);
+      if(!softBan) this.deactivateUser(user.id, user.name, byUser);
     }
   };
 
@@ -365,6 +365,13 @@ export default class Bot {
             
             if(isAdmin(user)) {
               this.banUser(targetUser, byUser);
+            }
+            break;
+          case '/softban':
+            console.log('BAN COMMAND');
+            
+            if(isAdmin(user)) {
+              this.banUser(targetUser, byUser, true);
             }
             break;
         }

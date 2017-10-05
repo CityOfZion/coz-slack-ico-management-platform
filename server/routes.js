@@ -116,3 +116,43 @@ Router.route('/slack/command/nukefromorbit', async function () {
   }
   
 }, {where: 'server'});
+
+Router.route('/slack/command/softban', async function () {
+  const req = this.request;
+  const res = this.response;
+  const data = {...req.body};
+  
+  const splitData = data.text.split(' ');
+  const userString = splitData.shift();
+  
+  if (!/^<@[A-Z0-9]{9}\|[a-zA-Z0-9_\-.]{1,100}>$/.test(userString)) {
+    console.log('INVALID USER STRING');
+    res.end('This is not a valid user');
+    return;
+  } else {
+    const {userId, username} = parseUserName(userString);
+    data.target_user = userId;
+    data.target_username = username;
+    data.user_string = userString;
+  
+  }
+  //
+  // const userResult = await this.web.users.info(data.target_user);
+  // console.log('GETTING SLACK USER!!');
+  // if (userResult.ok) {
+  //   if (isAdmin(userResult.user)) {
+  //     res.end('This user is an admin, can not ban/deactivate');
+  //     return;
+  //   }
+  // }
+  res.end('Will try to softban this user');
+  
+  const teamId = data.team_id;
+  
+  if (teamId) {
+    console.log('SENDING MESSAGE TO BOT');
+    const bot = BotStorage[teamId];
+    bot.handleMessageEvent(data);
+  }
+  
+}, {where: 'server'});
