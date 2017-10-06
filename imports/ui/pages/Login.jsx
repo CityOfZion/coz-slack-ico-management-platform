@@ -88,7 +88,8 @@ class Login extends Component {
         'users.profile:write',
         'users:write',
         'users:read.email',
-        'commands'
+        'commands',
+        'files:write:user'
       ]
     }, (res, err) => {
       console.log(err, res);

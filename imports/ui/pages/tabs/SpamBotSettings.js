@@ -57,7 +57,7 @@ const styles = theme => ({
     display: 'flex'
   },
   paper: {
-    width: '44vw',
+    width: '90%',
     paddingLeft: '2vw',
     paddingRight: '2vw',
     marginBottom: '1vh'

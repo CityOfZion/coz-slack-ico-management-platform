@@ -11,8 +11,6 @@ Router.route('/slack/events/request', function () {
   console.log('------ SETTING MESSAGE FOR EVENT -------');
   console.log('TEAMID: ', req.body.team_id);
   const teamId = req.body.team_id;
-  
-  console.log('EVENT MESSAGE', req.body.event);
   if (teamId) {
     console.log('SENDING MESSAGE TO BOT');
     const bot = BotStorage[teamId];

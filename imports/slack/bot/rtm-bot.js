@@ -91,6 +91,14 @@ export default class Bot {
     })
   };
   
+  deleteFile = fileId => {
+    this.web.files.delete(fileId);
+  };
+  
+  deleteMessage = (ts, channel) => {
+    this.web.chat.delete(ts, channel);
+  };
+  
   notifyChannel = message => {
     if(this.team.settings.warningMessageChannel !== '') {
       this.web.chat.postMessage(this.team.settings.warningMessageChannel, message);
@@ -265,7 +273,7 @@ export default class Bot {
               }
             });
             this.banUser(user, 'SPAM REMOVER');
-            
+            return;
           } else {
             console.log('MESSAGE DID NOT MEET SPAM REQUIREMENTS');
           }
@@ -292,6 +300,8 @@ export default class Bot {
             });
           }
         }
+        
+        Messages.insert({ts: message.ts, channel: message.channel, datePosted: new Date(), team: this.team.id});
         break;
       case 'team_join':
       case 'user_change':
@@ -328,6 +338,22 @@ export default class Bot {
             this.banUser(message.user, 'USER WAS BANNED ON OTHER SLACK');
           }
         }
+        break;
+      case 'file_share':
+        if(this.team.settings.limitFileUploads) {
+          if(this.team.settings.fileSizeLimit > 0) {
+            const fileSizeLimitInBytes = this.team.settings.fileSizeLimit * 1000;
+            if(message.file.size > fileSizeLimitInBytes) {
+              this.deleteFile(message.file.id);
+              const maxSize = this.team.settings.fileSizeLimit < 1000 ? this.team.settings.fileSizeLimit+'KB' : (this.team.settings.fileSizeLimit / 1000) + 'MB';
+              this.web.chat.postEphemeral(message.channel, `Maximum file size exceeded, ${maxSize} maximum allowed`, message.user);
+              return;
+            }
+          }
+        }
+        console.log('SAVING FILE INSERT', {id: message.file.id, dateUploaded: new Date(), byUser: message.file.user, team: this.team.id});
+        const insertedFile = Files.insert({id: message.file.id, dateUploaded: new Date(), byUser: message.file.user, team: this.team.id});
+        console.log(insertedFile);
         break;
       case 'command':
         switch(message.command) {

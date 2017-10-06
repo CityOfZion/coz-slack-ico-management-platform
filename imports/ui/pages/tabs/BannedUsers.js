@@ -27,14 +27,16 @@ import {createContainer} from 'meteor/react-meteor-data';
 const styles = theme => ({
   main: {
     display: 'flex',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: '1vh'
+    marginBottom: '1vh',
+    flexDirection: 'column'
   },
   button: {
     margin: theme.spacing.unit,
   },
   root: theme.mixins.gutters({
-    width: '50vw',
+    width: '90%',
     paddingTop: 16,
     paddingBottom: 16,
     marginTop: theme.spacing.unit * 3,
@@ -64,10 +66,11 @@ const styles = theme => ({
     display: 'flex'
   },
   paper: {
+    width: '90%',
     paddingLeft: '2vw',
     paddingRight: '2vw',
     marginBottom: '1vh'
-  }
+}
 });
 
 class BannedUsers extends Component {
@@ -77,7 +80,9 @@ class BannedUsers extends Component {
     
     this.state = {
       columns: [
+        { name: 'userId', title: 'UserID' },
         { name: 'date', title: 'Date' },
+        { name: 'email', title: 'Email' },
         { name: 'realName', title: 'Real Name' },
         { name: 'name', title: 'Name' },
         { name: 'displayName', title: 'Display Name' },
@@ -116,6 +121,8 @@ class BannedUsers extends Component {
   
       users.forEach(user => {
         const row = {
+          userId: user.user.id,
+          email: user.user.profile.email,
           date: dateFormat(user.banDate.toString(), 'yyyy-mm-dd hh:mm'),
           realName: user.user.profile.real_name,
           name: user.user.name,
@@ -153,7 +160,6 @@ class BannedUsers extends Component {
     
     return (
       <div className={classes.main}>
-        <Paper className={classes.root} elevation={3}>
           <Typography className={classes.title} type="headline" component="h3">
             User Management
           </Typography>
@@ -184,7 +190,6 @@ class BannedUsers extends Component {
               allowedPageSizes={allowedPageSizes}
             />
           </Grid>
-        </Paper>
       </div>
     );
   }

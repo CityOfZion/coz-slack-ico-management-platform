@@ -7,11 +7,7 @@ import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 import Switch from 'material-ui/Switch';
 import {FormLabel, FormControl, FormControlLabel} from 'material-ui/Form';
-import Chip from 'material-ui/Chip';
-import TextField from 'material-ui/TextField';
-import { MenuItem } from 'material-ui/Menu';
-import Select from 'material-ui/Select';
-import Input, { InputLabel } from 'material-ui/Input';
+import TextField from 'material-ui/TextField';;
 
 import {createContainer} from 'meteor/react-meteor-data';
 
@@ -64,17 +60,16 @@ const styles = theme => ({
   }
 });
 
-class NormalBotSettings extends Component {
+class SlackSettings extends Component {
   
   constructor(props) {
     super(props);
     this.state = {
-      enablePriceAnnouncements: false,
-      priceAnnouncementsChannel: '',
-      priceAnnouncementsCoin: '',
-      priceAnnouncementsInterval: 5,
-      priceAnnouncementInTopic: true,
-      
+      limitFileUploads: false,
+      fileSizeLimit: 0,
+      fileExpireDays: 0,
+      messageExpireDays: 0,
+      deleteOldMessages: false,
       saving: false
     }
   }
@@ -94,103 +89,98 @@ class NormalBotSettings extends Component {
     }
   }
   
-  enablePriceAnnouncements() {
+  limitFileUploads() {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>Enables price announcements in the specified channel</FormLabel>
+        <FormLabel className={classes.label}>Enable file upload limitations</FormLabel>
         <FormControlLabel
           control={
             <Switch
-              checked={this.state.enablePriceAnnouncements}
-              onChange={(event, checked) => this.setState({enablePriceAnnouncements: checked})}
+              checked={this.state.limitFileUploads}
+              onChange={(event, checked) => this.setState({limitFileUploads: checked})}
             />
           }
-          label={this.state.enablePriceAnnouncements ? "Enabled" : "Disabled"}
+          label={this.state.limitFileUploads ? "Enabled" : "Disabled"}
         />
       </FormControl>
     )
   }
   
-  priceAnnouncementsChannel(){
+  deleteOldMessages() {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>Specify a channel where price announcements will be sent. This has to be the Channel ID (C1234567 or similar)</FormLabel>
+        <FormLabel className={classes.label}>Enable message expiration (public channels only, except #announcements)</FormLabel>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={this.state.deleteOldMessages}
+              onChange={(event, checked) => this.setState({deleteOldMessages: checked})}
+            />
+          }
+          label={this.state.deleteOldMessages ? "Enabled" : "Disabled"}
+        />
+      </FormControl>
+    )
+  }
+  
+  fileSizeLimit(){
+    const {classes} = this.props;
+    return (
+      <FormControl className={classes.formControl} component="fieldset">
+        <FormLabel className={classes.label}>Limit the size of files users can upload</FormLabel>
         <div className={classes.row}>
           <TextField
-            label="Fill in a channel"
-            value={this.state.priceAnnouncementsChannel}
+            label="Fill in the size in kilobytes (0 is unlimited)"
+            value={this.state.fileSizeLimit}
             margin="normal"
+            type="number"
             fullWidth={true}
-            onChange={event => this.setState({priceAnnouncementsChannel: event.target.value})}
+            onChange={event => this.setState({fileSizeLimit: event.target.value})}
           />
         </div>
       </FormControl>
     );
   };
   
-  priceAnnouncementsCoin(){
+  fileExpireDays(){
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>Specify which coin will be used.<br />
-          <strong>https://api.coinmarketcap.com/v1/ticker/{this.state.priceAnnouncementsCoin.length > 0 ? this.state.priceAnnouncementsCoin : "YOUR_COIN"}/?convert=USD</strong>
-          <br />should yield a result.</FormLabel>
+        <FormLabel className={classes.label}>This option removes files after a certain number of days</FormLabel>
         <div className={classes.row}>
           <TextField
-            label="Fill in a coin"
-            value={this.state.priceAnnouncementsCoin}
+            label="Fill in the number of days (0 is unlimited)"
+            value={this.state.fileExpireDays}
             margin="normal"
+            type="number"
             fullWidth={true}
-            onChange={event => this.setState({priceAnnouncementsCoin: event.target.value})}
+            onChange={event => this.setState({fileExpireDays: event.target.value})}
           />
         </div>
       </FormControl>
     );
   };
   
-  priceAnnouncementsInterval() {
-    const {classes} = this.props;
-    
-    const options = () => {
-      const map = [];
-      for(let i = 1; i < 30; i++) {
-        map.push(<MenuItem key={'option' + i} value={i}>{i}</MenuItem>);
-      }
-      
-      return map;
-    };
-    
-    return <FormControl className={classes.formControl} component="fieldset">
-      <FormLabel className={classes.label}>Which interval in <strong>minutes</strong> should the bot announce at?</FormLabel>
-      <Select
-        value={this.state.priceAnnouncementsInterval}
-        onChange={e => this.setState({priceAnnouncementsInterval: e.target.value})}
-        input={<Input id="target-number" />}
-      >
-        {options()}
-      </Select>
-    </FormControl>
-  }
-  
-  priceAnnouncementInTopic() {
+  messageExpireDays(){
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>Set the price announcement as the topic of the channel, else will post a message instead</FormLabel>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={this.state.priceAnnouncementInTopic}
-              onChange={(event, checked) => this.setState({priceAnnouncementInTopic: checked})}
-            />
-          }
-          label={this.state.priceAnnouncementInTopic ? "Enabled" : "Disabled"}
-        />
+        <FormLabel className={classes.label}>Specify the number of days before messages expire</FormLabel>
+        <div className={classes.row}>
+          <TextField
+            label="Fill in the number of days (0 is unlimited)"
+            value={this.state.messageExpireDays}
+            margin="normal"
+            type="number"
+            fullWidth={true}
+            onChange={event => this.setState({messageExpireDays: event.target.value})}
+          />
+        </div>
       </FormControl>
-    )
-  }
+    );
+  };
   
   saveSettings = () => {
     this.setState({saving: true});
@@ -210,11 +200,14 @@ class NormalBotSettings extends Component {
         </Typography>
         
         <Paper className={classes.paper} elevation={3}>
-          {this.enablePriceAnnouncements()}
-          {this.state.enablePriceAnnouncements ? this.priceAnnouncementsCoin() : ''}
-          {this.state.enablePriceAnnouncements ? this.priceAnnouncementsChannel() : ''}
-          {this.state.enablePriceAnnouncements ? this.priceAnnouncementsInterval() : ''}
-          {this.state.enablePriceAnnouncements ? this.priceAnnouncementInTopic() : ''}
+          {this.limitFileUploads()}
+          {this.state.limitFileUploads ? this.fileSizeLimit() : ''}
+          {this.state.limitFileUploads ? this.fileExpireDays() : ''}
+        </Paper>
+        
+        <Paper className={classes.paper} elevation={3}>
+          {this.deleteOldMessages()}
+          {this.state.deleteOldMessages ? this.messageExpireDays() : ''}
         </Paper>
         
         {this.state.saving ?
@@ -231,11 +224,11 @@ class NormalBotSettings extends Component {
   }
 }
 
-NormalBotSettings.propTypes = {
+SlackSettings.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-const NormalBotSettingsContainer = createContainer(() => {
+const SlackSettingsContainer = createContainer(() => {
   const currentUser = Meteor.user();
   const teamSubscription = Meteor.subscribe('getTeam');
   const userSubscription = Meteor.subscribe('user');
@@ -249,6 +242,6 @@ const NormalBotSettingsContainer = createContainer(() => {
     team: team,
     loadingTeam: loadingTeam
   };
-}, NormalBotSettings);
+}, SlackSettings);
 
-export default withStyles(styles)(NormalBotSettingsContainer);
+export default withStyles(styles)(SlackSettingsContainer);

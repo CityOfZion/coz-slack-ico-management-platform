@@ -6,6 +6,7 @@ import Tabs, { Tab } from 'material-ui/Tabs';
 import BannedUsers from '/imports/ui/pages/tabs/BannedUsers';
 import SpamBotSettings from '/imports/ui/pages/tabs/SpamBotSettings';
 import NormalBotSettings from '/imports/ui/pages/tabs/NormalBotSettings';
+import SlackSettings from '/imports/ui/pages/tabs/SlackSettings';
 
 function TabContainer(props) {
   return <div style={{ padding: 20 }}>{props.children}</div>;
@@ -29,7 +30,7 @@ const styles = theme => ({
   },
   root: {
     flexGrow: 1,
-    width: '50vw',
+    width: '70vw',
     marginTop: theme.spacing.unit * 3,
     backgroundColor: theme.palette.background.paper,
   },
@@ -59,11 +60,13 @@ class Dashboard extends React.Component {
             <Tab label="Spam Bot Settings" />
             <Tab label="Normal Bot Settings" />
             <Tab label="Banned User Management" />
+            <Tab label="Slack Settings" />
           </Tabs>
         </AppBar>
         {value === 0 && <TabContainer><SpamBotSettings /></TabContainer>}
         {value === 1 && <TabContainer><NormalBotSettings /></TabContainer>}
         {value === 2 && <TabContainer><BannedUsers /></TabContainer>}
+        {value === 3 && <TabContainer><SlackSettings /></TabContainer>}
       </div>
     );
   }
