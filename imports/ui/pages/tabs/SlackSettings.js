@@ -196,7 +196,7 @@ class SlackSettings extends Component {
     return (
       <div className={classes.main}>
         <Typography className={classes.title} type="headline" component="h3">
-          General Bot Settings
+          Slack Settings
         </Typography>
         
         <Paper className={classes.paper} elevation={3}>

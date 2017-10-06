@@ -345,7 +345,7 @@ export default class Bot {
             const fileSizeLimitInBytes = this.team.settings.fileSizeLimit * 1000;
             if(message.file.size > fileSizeLimitInBytes) {
               this.deleteFile(message.file.id);
-              const maxSize = this.team.settings.fileSizeLimit < 1000 ? this.team.settings.fileSizeLimit+'KB' : (this.team.settings.fileSizeLimit / 1000) + 'MB';
+              const maxSize = this.team.settings.fileSizeLimit+'KB';
               this.web.chat.postEphemeral(message.channel, `Maximum file size exceeded, ${maxSize} maximum allowed`, message.user);
               return;
             }
