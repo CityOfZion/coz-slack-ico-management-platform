@@ -340,7 +340,7 @@ export default class Bot {
         }
         break;
       case 'file_share':
-        if(this.team.settings.limitFileUploads) {
+        if(this.team.settings && !isAdmin(user)) {
           if(this.team.settings.fileSizeLimit > 0) {
             const fileSizeLimitInBytes = this.team.settings.fileSizeLimit * 1000;
             if(message.file.size > fileSizeLimitInBytes) {
@@ -351,9 +351,7 @@ export default class Bot {
             }
           }
         }
-        console.log('SAVING FILE INSERT', {id: message.file.id, dateUploaded: new Date(), byUser: message.file.user, team: this.team.id});
-        const insertedFile = Files.insert({id: message.file.id, dateUploaded: new Date(), byUser: message.file.user, team: this.team.id});
-        console.log(insertedFile);
+        if(!isAdmin(user)) Files.insert({id: message.file.id, dateUploaded: new Date(), byUser: message.file.user, team: this.team.id});
         break;
       case 'command':
         switch(message.command) {
