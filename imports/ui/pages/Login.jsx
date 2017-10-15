@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
+import scopes from '/imports/slack/scopes';
 
 const styles = theme => ({
   main: {
@@ -50,12 +51,7 @@ class Login extends Component {
   
   handleSlackLogin() {
     Meteor.loginWithSlack({
-      requestPermissions: [
-        'identity.email',
-        'identity.basic',
-        'identity.team',
-        'identity.avatar'
-      ]
+      requestPermissions: scopes.user
     }, (res, err) => {
       console.log(err, res);
       if (!err) {
@@ -69,28 +65,7 @@ class Login extends Component {
   
   handleAddToSlack() {
     Meteor.loginWithSlack({
-      requestPermissions: [
-        'im:read',
-        'channels:history',
-        'im:history',
-        'users:read',
-        'bot',
-        'admin',
-        'channels:read',
-        'channels:write',
-        'chat:write:bot',
-        'chat:write:user',
-        'im:write',
-        'reminders:read',
-        'reminders:write',
-        'team:read',
-        'users.profile:read',
-        'users.profile:write',
-        'users:write',
-        'users:read.email',
-        'commands',
-        'files:write:user'
-      ]
+      requestPermissions: scopes.admin
     }, (res, err) => {
       console.log(err, res);
       if (!err) {
@@ -114,7 +89,7 @@ class Login extends Component {
             <Typography className={classes.content} type="body1" component="p">
               Logging in with Slack will ask you for permissions, we will never use any of these to read your private
               messages.
-              These permissions are so we can see if there is an attempt to scam you.
+              These permissions are so we can see if there is an attempt to scam you, we will never save or read any of your private messages.
             </Typography>
             <Typography className={classes.content} type="body1" component="p">
               Please select the team you want to apply to after you click Login.

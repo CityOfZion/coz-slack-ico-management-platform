@@ -109,7 +109,7 @@ class BannedUsers extends Component {
   changeFilters = filters => this.setState({ filters });
   
   unBan = (userId, username) => {
-    Meteor.call('enableUser', userId, this.props.team.id, username, (err, res) => {
+    Meteor.call('enableUser', userId, username, (err, res) => {
       console.log(err, res);
     })
   };

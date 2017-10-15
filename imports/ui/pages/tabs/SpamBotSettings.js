@@ -9,9 +9,9 @@ import Switch from 'material-ui/Switch';
 import {FormLabel, FormControl, FormControlLabel} from 'material-ui/Form';
 import Chip from 'material-ui/Chip';
 import TextField from 'material-ui/TextField';
-import { MenuItem } from 'material-ui/Menu';
+import {MenuItem} from 'material-ui/Menu';
 import Select from 'material-ui/Select';
-import Input, { InputLabel } from 'material-ui/Input';
+import Input, {InputLabel} from 'material-ui/Input';
 
 import {createContainer} from 'meteor/react-meteor-data';
 
@@ -22,7 +22,7 @@ const styles = theme => ({
     alignItems: 'center',
     marginBottom: '1vh',
     flexDirection: 'column'
-  
+    
   },
   button: {
     margin: theme.spacing.unit,
@@ -108,7 +108,7 @@ class SpamBotSettings extends Component {
   
   componentWillReceiveProps(nextProps) {
     if (nextProps.loadingUser !== this.props.loadingUser) this.checkSubs(nextProps);
-    if(nextProps.loadingTeam !== this.props.loadingTeam) this.checkSubs(nextProps);
+    if (nextProps.loadingTeam !== this.props.loadingTeam) this.checkSubs(nextProps);
   }
   
   checkSubs(props) {
@@ -157,11 +157,12 @@ class SpamBotSettings extends Component {
     this.setState({restrictedUserName: event.target.value});
   };
   
-  triggerWords(){
+  triggerWords() {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>Specify words or sentences here that trigger the spam filter, this counts for messages in public channels.</FormLabel>
+        <FormLabel className={classes.label}>Specify words or sentences here that trigger the spam filter, this counts
+          for messages in public channels.</FormLabel>
         <div className={classes.row}>
           <TextField
             id="filterWords"
@@ -195,11 +196,12 @@ class SpamBotSettings extends Component {
     );
   };
   
-  userScamWarningMessage(){
+  userScamWarningMessage() {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>Specify a message to send to users as a warning when they receive a potential scam message.</FormLabel>
+        <FormLabel className={classes.label}>Specify a message to send to users as a warning when they receive a
+          potential scam message.</FormLabel>
         <div className={classes.row}>
           <TextField
             multiline
@@ -216,7 +218,7 @@ class SpamBotSettings extends Component {
     );
   };
   
-  warningMessageChannel(){
+  warningMessageChannel() {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
@@ -234,12 +236,13 @@ class SpamBotSettings extends Component {
     );
   };
   
-  specialAdminToken(){
+  specialAdminToken() {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>Fill in your special admin token, the only way you can get his token is from the Slack website.
-          This token allows the bot to deactivate banned user accounts right away. <br />
+        <FormLabel className={classes.label}>Fill in your special admin token, the only way you can get his token is
+          from the Slack website.
+          This token allows the bot to deactivate banned user accounts right away. <br/>
           Leave this empty if you don't want the use the functionality.
           <ol>
             <li>Login to slack as an admin</li>
@@ -273,7 +276,8 @@ class SpamBotSettings extends Component {
     const {classes, title} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>This allows non admin users to set reminders for public channels</FormLabel>
+        <FormLabel className={classes.label}>This allows non admin users to set reminders for public
+          channels</FormLabel>
         <FormControlLabel
           control={
             <Switch
@@ -287,7 +291,7 @@ class SpamBotSettings extends Component {
     )
   };
   
-  suspiciousEmailDomains(){
+  suspiciousEmailDomains() {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
@@ -329,7 +333,8 @@ class SpamBotSettings extends Component {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>This will remove any user that uses a suspicious/banned email domain</FormLabel>
+        <FormLabel className={classes.label}>This will remove any user that uses a suspicious/banned email
+          domain</FormLabel>
         <FormControlLabel
           control={
             <Switch
@@ -347,7 +352,8 @@ class SpamBotSettings extends Component {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>This will remove any user that registers using an email that has been banned for spamming before on other registered Slack.</FormLabel>
+        <FormLabel className={classes.label}>This will remove any user that registers using an email that has been
+          banned for spamming before on other registered Slack.</FormLabel>
         <FormControlLabel
           control={
             <Switch
@@ -364,7 +370,8 @@ class SpamBotSettings extends Component {
   forceUserSignup() {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
-      <FormLabel className={classes.label}>This option will force users to sign up to this platform, if they are not signed up their messages will be deleted.</FormLabel>
+      <FormLabel className={classes.label}>This option will force users to sign up to this platform, if they are not
+        signed up their messages will be deleted.</FormLabel>
       <FormControlLabel
         control={
           <Switch
@@ -380,7 +387,8 @@ class SpamBotSettings extends Component {
   allowReminders() {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
-      <FormLabel className={classes.label}>This allows reminders for users, if this is on, admins will be able to make reminders for users/channels.</FormLabel>
+      <FormLabel className={classes.label}>This allows reminders for users, if this is on, admins will be able to make
+        reminders for users/channels.</FormLabel>
       <FormControlLabel
         control={
           <Switch
@@ -396,7 +404,9 @@ class SpamBotSettings extends Component {
   removeDmSpam() {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
-      <FormLabel className={classes.label}>This option removes suspicious messages from direct messages to users. Messages are marked as suspicious if they contain one of the words specified below. <br />This will cause issues if the user hasn't registered</FormLabel>
+      <FormLabel className={classes.label}>This option removes suspicious messages from direct messages to users.
+        Messages are marked as suspicious if they contain one of the words specified below. <br/>This will cause issues
+        if the user hasn't registered</FormLabel>
       <FormControlLabel
         control={
           <Switch
@@ -412,7 +422,8 @@ class SpamBotSettings extends Component {
   removePublicSpam() {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
-      <FormLabel className={classes.label}>This option removes suspicious messages from the public channels, based on the words specified below.</FormLabel>
+      <FormLabel className={classes.label}>This option removes suspicious messages from the public channels, based on
+        the words specified below.</FormLabel>
       <FormControlLabel
         control={
           <Switch
@@ -428,7 +439,8 @@ class SpamBotSettings extends Component {
   warnUserAboutScam() {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
-      <FormLabel className={classes.label}>This option sends the user a message when a suspicious private message has been spotted, specify your message below.</FormLabel>
+      <FormLabel className={classes.label}>This option sends the user a message when a suspicious private message has
+        been spotted, specify your message below.</FormLabel>
       <FormControlLabel
         control={
           <Switch
@@ -444,7 +456,8 @@ class SpamBotSettings extends Component {
   allowUserReport() {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
-      <FormLabel className={classes.label}>This option lets users report scammers on their own with /report @user [reason].</FormLabel>
+      <FormLabel className={classes.label}>This option lets users report scammers on their own with /report @user
+        [reason].</FormLabel>
       <FormControlLabel
         control={
           <Switch
@@ -462,7 +475,7 @@ class SpamBotSettings extends Component {
     
     const options = () => {
       const map = [];
-      for(let i = 1; i < 30; i++) {
+      for (let i = 1; i < 30; i++) {
         map.push(<MenuItem key={'option' + i} value={i}>{i}</MenuItem>);
       }
       
@@ -474,7 +487,7 @@ class SpamBotSettings extends Component {
       <Select
         value={this.state.reportsNeededForBan}
         onChange={e => this.setState({reportsNeededForBan: e.target.value})}
-        input={<Input id="target-number" />}
+        input={<Input id="target-number"/>}
       >
         {options()}
       </Select>
@@ -484,7 +497,8 @@ class SpamBotSettings extends Component {
   askBeforeBan() {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
-      <FormLabel className={classes.label}>This option notifies the admin with a suspicious user and gives the option to ban him from the message. It might however cause issues when there are no admins online.</FormLabel>
+      <FormLabel className={classes.label}>This option notifies the admin with a suspicious user and gives the option to
+        ban him from the message. It might however cause issues when there are no admins online.</FormLabel>
       <FormControlLabel
         control={
           <Switch
@@ -500,7 +514,8 @@ class SpamBotSettings extends Component {
   removeLinks() {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
-      <FormLabel className={classes.label}>This option removes all urls from non-admin users in public messages.</FormLabel>
+      <FormLabel className={classes.label}>This option removes all urls from non-admin users in public
+        messages.</FormLabel>
       <FormControlLabel
         control={
           <Switch
@@ -516,7 +531,8 @@ class SpamBotSettings extends Component {
   removeDuplicateUserNames() {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
-      <FormLabel className={classes.label}>This option removes all users who try to create a user with a username that already exists.</FormLabel>
+      <FormLabel className={classes.label}>This option removes all users who try to create a user with a username that
+        already exists.</FormLabel>
       <FormControlLabel
         control={
           <Switch
@@ -529,7 +545,7 @@ class SpamBotSettings extends Component {
     </FormControl>
   }
   
-  removeUserNames(){
+  removeUserNames() {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
@@ -570,7 +586,8 @@ class SpamBotSettings extends Component {
   removeBannedMessages() {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
-      <FormLabel className={classes.label}>This option will remove any messages from banned users in public channels.</FormLabel>
+      <FormLabel className={classes.label}>This option will remove any messages from banned users in public
+        channels.</FormLabel>
       <FormControlLabel
         control={
           <Switch
@@ -587,69 +604,69 @@ class SpamBotSettings extends Component {
     const {classes} = this.props;
     return (
       <div className={classes.main}>
-          <Typography className={classes.title} type="headline" component="h3">
-            Anti Spam/Scam settings
-          </Typography>
+        <Typography className={classes.title} type="headline" component="h3">
+          Anti Spam/Scam settings
+        </Typography>
+        <Paper className={classes.paper} elevation={3}>
+          {this.forceUserSignup()}
+        </Paper>
+        {this.state.forceUserSignup ?
           <Paper className={classes.paper} elevation={3}>
-            {this.forceUserSignup()}
-            {this.state.forceUserSignup ? this.removeDmSpam() : ''}
+            {this.warnUserAboutScam()}
+            {this.state.warnUserAboutScam ? this.userScamWarningMessage() : ''}
           </Paper>
-          {this.state.forceUserSignup ?
-            <Paper className={classes.paper} elevation={3}>
-              {this.warnUserAboutScam()}
-              {this.state.warnUserAboutScam ? this.userScamWarningMessage() : ''}
-            </Paper>
-            : ''}
-          
-          <Paper className={classes.paper} elevation={3}>
-            {this.warningMessageChannel()}
-          </Paper>
-          
-          <Paper className={classes.paper} elevation={3}>
-            {this.removeOtherSlackBannedUserEmails()}
-            {this.removeSuspiciousEmailDomainUsers()}
-            {this.state.removeSuspiciousEmailDomainUsers ? this.suspiciousEmailDomains() : ''}
-          </Paper>
-          
-          <Paper className={classes.paper} elevation={3}>
-            {this.allowUserReport()}
-            {this.state.allowUserReport ? this.reportsNeededForBan() : ''}
-          </Paper>
-          
-          {/*{this.askBeforeBan()}*/}
-          <Paper className={classes.paper} elevation={3}>
-            {this.removeBannedMessages()}
-            {this.removePublicSpam()}
-            {this.triggerWords()}
-          </Paper>
-          
-          <Paper className={classes.paper} elevation={3}>
-            {this.allowReminders()}
-            {this.state.allowReminders ? this.allowUserReminders() : ''}
-          </Paper>
-          
-          <Paper className={classes.paper} elevation={3}>
-            {this.removeLinks()}
-          </Paper>
-          
-          <Paper className={classes.paper} elevation={3}>
-            {this.removeDuplicateUserNames()}
-            {this.state.removeDuplicateUserNames ? this.removeUserNames() : ''}
-          </Paper>
-          
-          <Paper className={classes.paper} elevation={3}>
-            {this.specialAdminToken()}
-          </Paper>
-          
-          {this.state.saving ?
-            <Button raised color="accent" className={classes.button}>
-              Saved! Waiting to restart the bot
-            </Button>
-            :
-            <Button raised color="primary" className={classes.button} onClick={e => this.saveSettings()}>
-              Save Settings
-            </Button>
-          }
+          : ''}
+        
+        <Paper className={classes.paper} elevation={3}>
+          {this.warningMessageChannel()}
+        </Paper>
+        
+        <Paper className={classes.paper} elevation={3}>
+          {this.removeOtherSlackBannedUserEmails()}
+          {this.removeSuspiciousEmailDomainUsers()}
+          {this.state.removeSuspiciousEmailDomainUsers ? this.suspiciousEmailDomains() : ''}
+        </Paper>
+        
+        <Paper className={classes.paper} elevation={3}>
+          {this.allowUserReport()}
+          {this.state.allowUserReport ? this.reportsNeededForBan() : ''}
+        </Paper>
+        
+        {/*{this.askBeforeBan()}*/}
+        <Paper className={classes.paper} elevation={3}>
+          {this.removeBannedMessages()}
+          {this.removeDmSpam()}
+          {this.removePublicSpam()}
+          {this.triggerWords()}
+        </Paper>
+        
+        <Paper className={classes.paper} elevation={3}>
+          {this.allowReminders()}
+          {this.state.allowReminders ? this.allowUserReminders() : ''}
+        </Paper>
+        
+        <Paper className={classes.paper} elevation={3}>
+          {this.removeLinks()}
+        </Paper>
+        
+        <Paper className={classes.paper} elevation={3}>
+          {this.removeDuplicateUserNames()}
+          {this.state.removeDuplicateUserNames ? this.removeUserNames() : ''}
+        </Paper>
+        
+        <Paper className={classes.paper} elevation={3}>
+          {this.specialAdminToken()}
+        </Paper>
+        
+        {this.state.saving ?
+          <Button raised color="accent" className={classes.button}>
+            Saved! Waiting to restart the bot
+          </Button>
+          :
+          <Button raised color="primary" className={classes.button} onClick={e => this.saveSettings()}>
+            Save Settings
+          </Button>
+        }
       </div>
     );
   }

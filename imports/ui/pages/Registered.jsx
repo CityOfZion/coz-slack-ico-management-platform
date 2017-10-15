@@ -40,11 +40,11 @@ const styles = theme => ({
 class Registered extends Component {
   
   goToSlack() {
-    Router.redirect(this.props.currentUser.profile.auth.url);
+    console.log(Meteor.user().profile.auth.url);
+    window.location = Meteor.user().profile.auth.url;
   }
   
   render() {
-    console.log(Meteor.user())
     const {classes, currentUser} = this.props;
     return (
       <div>

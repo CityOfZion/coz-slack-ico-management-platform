@@ -40,15 +40,16 @@ const removeUrl = string => {
 
 export default class Bot {
   constructor(team) {
+    if(!team || !team.oauth || !team.oauth.bot) return;
     this.team = team;
     this.rtm = new RtmClient(team.oauth.bot.bot_access_token);
     this.web = new WebClient(team.oauth.access_token);
   }
   
-  log(data) {
+  log(type, data) {
     data.dateInserted = new Date();
     data.teamId = this.team.id;
-    Logs.insert(data);
+    Logs.insert({type: type, data: data});
   }
   
   banUser = (user, byUser, softBan = false) => {
@@ -57,9 +58,13 @@ export default class Bot {
 
     if(!this.team.settings.askBeforeBan && !isBanned && user && !isAdmin(user)) {
       console.log('BANNING USER');
-      Banned.insert({user: user, name: user.name, team_id: this.team.id, byUser: byUser, banDate: new Date()});
+      const data = {user: user, name: user.name, team_id: this.team.id, byUser: byUser, banDate: new Date()};
+      
+      Banned.insert(data);
       this.notifyChannel(`\`${byUser}\` banned a user with id \`${user.id}\` and name \`${user.name}\` <@${user.id}|${user.name}> `);
       if(!softBan) this.deactivateUser(user.id, user.name, byUser);
+      
+      this.log('BAN', data);
     } else {
       console.log('USER ALREADY BANNED, WILL STILL DEACTIVATE');
       if(!softBan) this.deactivateUser(user.id, user.name, byUser);
@@ -74,18 +79,21 @@ export default class Bot {
       console.log('tried to deactivate a user by api token', err, res);
       if(res.data.ok) {
         this.notifyChannel(`\`${byUser}\` deactivated a user with id \`${user}\` and name \`${username}\` <@${user}|${username}> `);
+        this.log('deactivate', {user, username, byUser});
       }
     })
   };
   
-  enableUser = (user, username) => {
+  enableUser = (user, username, byUser) => {
     Banned.remove({"user.id": user, team_id: this.team.id});
+    this.log('enable', {user, username, byUser});
     if(!this.team.settings.adminToken) return;
     const apiUrl = `${this.team.url}api/users.admin.setRegular?token=${this.team.settings.adminToken}&user=${user}`;
     console.log('calling url', apiUrl);
     HTTP.get(apiUrl, (err, res) => {
       console.log('tried to reactivate a user by api token', err, res);
       if(res.data.ok) {
+        
         this.notifyChannel(`Reactivated a user with id \`${user}\` and name \`${username}\` <@${user}|${username}> `);
       }
     })
@@ -136,6 +144,27 @@ export default class Bot {
   
   getTeam() {
     this.team = Teams.findOne({id: this.team.id});
+  }
+  
+  importFiles() {
+    this.web.files.list((err, res) => {
+      if(res.ok) {
+        res.files.forEach(async file => {
+          const user = await this.web.user.info(file.user);
+          if(!isAdmin(user)) Files.insert({id: file.id, dateUploaded: new Date(file.ts), byUser: file.user, team: this.team.id});
+        })
+      }
+    });
+  }
+  
+  importMessages() {
+    this.web.channels.history((err, res) => {
+      if(res.ok) {
+        res.messages.forEach(message => {
+          Messages.insert({ts: message.ts, channel: message.channel, datePosted: new Date(message.ts), team: this.team.id});
+        })
+      }
+    });
   }
   
   start() {
@@ -255,10 +284,10 @@ export default class Bot {
         }
         
         // Remove direct message spam (DM channels start with D)
-        if((this.team.settings.removeDmSpam && message.channel.charAt(0) === 'D') || this.team.settings.removePublicChannelSpam) {
+        if(!isAdmin(user) && ((this.team.settings.removeDmSpam && message.channel.charAt(0) === 'D') || this.team.settings.removePublicChannelSpam)) {
           console.log('FOUND MESSAGE AND SPAM REMOVAL IS ON');
           // test if the message contains banned words
-          if (this.team.settings.triggerWords.some(function(v) { return message.text.indexOf(v) >= 0; })) {
+          if (this.team.settings.triggerWords.some(function(v) { return message.text.toLowerCase().indexOf(v) >= 0; })) {
             // We found a match now let's delete
             console.log('FOUND A MSG MATCHING ONE OF THE WORDS');
             

@@ -85,49 +85,6 @@ const getIdentity = function (accessToken) {
   }
 };
 
-const oauth = function (payload) {
-  try {
-    if (!payload.identity.team_id) {
-    }
-    const team = Teams.find({
-      id: payload.identity.team_id
-    });
-    
-    const newTeam = {
-      id: payload.identity.team_id,
-      createdBy: payload.identity.user_id,
-      url: payload.identity.url,
-      name: payload.identity.team,
-    };
-    
-    newTeam.bot = {
-      token: payload.bot.bot_access_token,
-      user_id: payload.bot.bot_user_id,
-      createdBy: payload.identity.user_id,
-      app_token: payload.access_token,
-    };
-    
-    const authTest = getUserInfo();
-    
-    newTeam.bot.name = authTest.user;
-    authTest.identity = authTest;
-    authTest.team_info = newTeam;
-    
-    if (team.count() === 0) {
-      Teams.insert(newTeam);
-    } else {
-      Teams.findOneAndUpdate({
-        id: newTeam.id
-      }, {
-        $set: newTeam
-      });
-    }
-    
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 const generateOauthUrl = function(team_id, redirect_params) {
   const scopes = Meteor.settings.bot.config.scopes;
   
@@ -156,6 +113,5 @@ export {
   getAuthInfo,
   getUserGroups,
   getIdentity,
-  generateOauthUrl,
-  oauth
+  generateOauthUrl
 };

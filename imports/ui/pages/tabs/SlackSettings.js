@@ -7,7 +7,8 @@ import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 import Switch from 'material-ui/Switch';
 import {FormLabel, FormControl, FormControlLabel} from 'material-ui/Form';
-import TextField from 'material-ui/TextField';;
+import TextField from 'material-ui/TextField';
+import Dialog from 'material-ui/Dialog';
 
 import {createContainer} from 'meteor/react-meteor-data';
 
@@ -57,6 +58,10 @@ const styles = theme => ({
     paddingLeft: '2vw',
     paddingRight: '2vw',
     marginBottom: '1vh'
+  },
+  dialog :{
+    justifyContent: 'center',
+    textAlign: 'center'
   }
 });
 
@@ -70,7 +75,9 @@ class SlackSettings extends Component {
       fileExpireDays: 0,
       messageExpireDays: 0,
       deleteOldMessages: false,
-      saving: false
+      saving: false,
+      importPastMessagesDialog: false,
+      importingMessages: false
     }
   }
   
@@ -162,6 +169,50 @@ class SlackSettings extends Component {
       </FormControl>
     );
   };
+  
+  importMessages() {
+    this.setState({importingMessages: true, importPastMessagesDialog: false});
+    
+    Meteor.call('importMessages', function() {
+    
+    });
+  }
+  
+  importPastMessagesDialog() {
+    const {classes} = this.props;
+    
+    const actions = [
+      <Button
+        raised
+        color="accent"
+        className={classes.button}
+        onClick={e => this.importMessages()}
+      >
+        Import
+      </Button>,
+      <Button
+        raised
+        color="accent"
+        className={classes.button}
+        onClick={e => this.setState({importPastMessagesDialog: false})}
+      >
+        Cancel
+      </Button>,
+    ];
+    
+    return <div>
+      <Button raised color="accent" className={classes.button} disabled={this.state.importingMessages}>Import past messages</Button>
+      <Dialog
+        title="Import past messages"
+        actions={actions}
+        modal={true}
+        open={this.state.importPastMessagesDialog}
+        style={classes.dialog}
+      >
+        Warning, this action will be performed on the server and may take some time to finish.
+      </Dialog>
+    </div>
+  }
   
   messageExpireDays(){
     const {classes} = this.props;
