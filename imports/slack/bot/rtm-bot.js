@@ -292,7 +292,7 @@ export default class Bot {
         if(!isAdmin(user) && ((this.team.settings.removeDmSpam && message.channel.charAt(0) === 'D') || this.team.settings.removePublicChannelSpam)) {
           console.log('FOUND MESSAGE AND SPAM REMOVAL IS ON');
           // test if the message contains banned words
-          if (this.team.settings.triggerWords.some(function(v) { return message.text.toLowerCase().indexOf(v) >= 0; })) {
+          if (this.team.settings.triggerWords.some(function(v) { return new RegExp(v, 'ig').test(message.text); })) {
             // We found a match now let's delete
             console.log('FOUND A MSG MATCHING ONE OF THE WORDS');
             
@@ -358,7 +358,7 @@ export default class Bot {
         }
         
         if(this.team.settings.removeSuspiciousEmailDomainUsers && !isAdmin(user) && !isBanned) {
-          if(this.team.settings.suspiciousEmailDomains.indexOf(user.profile.email) >= 0) {
+          if (this.team.settings.suspiciousEmailDomains.some(function(v) { return new RegExp(v, 'ig').test(user.profile.email); })) {
             this.notifyChannel(`User with id \`${message.user.id}\` and name \`${message.user.name}\` has been preemptively banned for using a banned email domain`);
     
             this.banUser(message.user, 'EMAIL DOMAIN PROTECTION');

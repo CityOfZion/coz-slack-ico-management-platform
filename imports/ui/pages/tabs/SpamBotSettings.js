@@ -168,12 +168,12 @@ class SpamBotSettings extends Component {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>Specify words or sentences here that trigger the spam filter, this counts
+        <FormLabel className={classes.label}>Specify words, regex or sentences here that trigger the spam filter, this counts
           for messages in public channels.</FormLabel>
         <div className={classes.row}>
           <TextField
             id="filterWords"
-            label="Fill in a word or sentence to filter on and press enter"
+            label="Fill in a word, regex or sentence to filter on and press enter"
             value={this.state.triggerWord}
             className={classes.input}
             margin="normal"
@@ -302,11 +302,11 @@ class SpamBotSettings extends Component {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>Specify domains that will trigger the auto-ban functionality.</FormLabel>
+        <FormLabel className={classes.label}>Specify domains, regex that will trigger the auto-ban functionality.</FormLabel>
         <div className={classes.row}>
           <TextField
             id="filterDomains"
-            label="Fill in a domain and press enter"
+            label="Fill in a domain, regex and press enter"
             value={this.state.suspiciousEmailDomain}
             className={classes.input}
             margin="normal"
