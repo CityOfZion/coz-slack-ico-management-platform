@@ -34,6 +34,9 @@ This will start the server and the Mongo database.
 - Event Subscriptions URL: `https://NGROK_URL/slack/events/request`
 - Slack command /report : `https://NGROK_URL/slack/command/report`
 - Slack command /nukefromorbit : `https://NGROK_URL/slack/command/nukefromorbit`
+- Slack command /softban : `https://NGROK_URL/slack/command/softban`
+
+Of course when you deploy this system, these URLs should reflect the URL you are running it on.
 
 Connect to the database with MongoBooster `localhost:3001`
 
@@ -47,6 +50,11 @@ db.meteor_accounts_loginServiceConfiguration.insert({
 	"loginStyle" : "redirect"
 })
 ```
+
+### Deploying to Heroku
+- Make sure you set the build package to `https://github.com/AdmitHub/meteor-buildpack-horse.git`
+- Set the following Config Vars: `BUILDPACK_CLEAR_CACHE: 1` `MONGO_URL: YOUR_MONGO_URL` `ROOT_URL: SITE_URL`
+- Deploy with `git push heroku master` from command line (see Heroku for more details how to deploy)
 
 **Currently the platform will be available online for other Slacks to use. Be aware that it is still in beta!**
 
