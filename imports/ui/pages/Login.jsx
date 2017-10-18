@@ -15,6 +15,7 @@ const styles = theme => ({
   },
   button: {
     margin: theme.spacing.unit,
+    width: '96%'
   },
   input: {
     display: 'none',
@@ -87,14 +88,13 @@ class Login extends Component {
               {title ? title : 'We require permissions'}
             </Typography>
             <Typography className={classes.content} type="body1" component="p">
-              Logging in with Slack will ask you for permissions, we will never use any of these to read your private
-              messages.
-              These permissions are so we can see if there is an attempt to scam you, we will never save or read any of your private messages.
+              Logging in with Slack will ask you for permissions, we will never use any of these to read or save your private messages.
+              These permissions are so we can see if there is an attempt to scam you.
             </Typography>
             <Typography className={classes.content} type="body1" component="p">
               Please select the team you want to apply to after you click Login.
             </Typography>
-            <Button raised color="primary" className={classes.button} onClick={this.handleSlackLogin}>
+            <Button raised className="button-primary" onClick={this.handleSlackLogin}>
               Login with Slack
             </Button>
           </Paper>
@@ -109,7 +109,7 @@ class Login extends Component {
               messages.
               These permissions are so we can see if there is an attempt to scam you.
             </Typography>
-            <Button raised color="primary" className={classes.button} onClick={this.handleAddToSlack}>
+            <Button raised className="button-primary" onClick={this.handleAddToSlack}>
               Add to Slack
             </Button>
           </Paper>

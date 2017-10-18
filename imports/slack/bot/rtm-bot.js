@@ -15,7 +15,6 @@ const messageType = message => {
   } else {
     type = message.type;
   }
-  
   return type;
 };
 
@@ -61,7 +60,9 @@ export default class Bot {
       const data = {user: user, name: user.name, team_id: this.team.id, byUser: byUser, banDate: new Date()};
       
       Banned.insert(data);
+      
       this.notifyChannel(`\`${byUser}\` banned a user with id \`${user.id}\` and name \`${user.name}\` <@${user.id}|${user.name}> `);
+
       if(!softBan) this.deactivateUser(user.id, user.name, byUser);
       
       this.log('BAN', data);
@@ -113,17 +114,22 @@ export default class Bot {
     }
   };
   
-  setPrice = () => {
-    console.log('Fetching price');
-    HTTP.call('GET', `https://api.coinmarketcap.com/v1/ticker/${this.team.settings.priceAnnouncementsCoin}/?convert=USD`, (err, res) => {
+  setPrice = priceBot => {
+    console.log('---------------------------------------------------------------------');
+    console.log('Fetching price', priceBot);
+    
+    if(!priceBot) return;
+    if(priceBot.coin.trim() === '' || priceBot.currency.trim() === '') return;
+    HTTP.call('GET', `https://api.coinmarketcap.com/v1/ticker/${priceBot.coin}/?convert=${priceBot.currency}`, (err, res) => {
       if(!err && !res.data.error) {
         const price = res.data[0];
-        const message = `${price.symbol} $${price.price_usd} | B${price.price_btc} | 1HCHANGE ${price.percent_change_1h}%`;
-        if(this.team.settings.priceAnnouncementInTopic) {
-          this.web.channels.setTopic(this.team.settings.priceAnnouncementsChannel, message, (err, res) => {
+        const priceIdentifier = `price_${priceBot.currency.toLowerCase()}`;
+        const message = `${price.symbol} ${priceBot.currency.toUpperCase()}${price[priceIdentifier]} | B${price.price_btc} | 1HCHANGE ${price.percent_change_1h}%`;
+        if(priceBot.inTopic) {
+          this.web.channels.setTopic(priceBot.channel, message, (err, res) => {
           });
         } else {
-          this.web.chat.postMessage(this.team.settings.priceAnnouncementsChannel, message, (err, res) => {
+          this.web.chat.postMessage(priceBot.channel, message, (err, res) => {
           });
         }
       }
@@ -132,7 +138,6 @@ export default class Bot {
   
   sendPrivateMessage = (userId, message) => {
     this.web.im.open(this.team.oauth.bot.bot_user_id, (err, res) => {
-      console.log(err, res);
       if(res.ok) {
         console.log('SENDING MESSAGE TO TARGET USER '+ userId);
         console.log(res);
@@ -184,7 +189,7 @@ export default class Bot {
   
   async handleMessageEvent(message) {
     const msgType = messageType(message);
-    if (['pong', 'reconnect_url', 'presence_change', 'hello', 'user_typing', 'message_deleted', 'bot_message', 'im_open', 'im_close'].includes(msgType)) {
+    if (['pong', 'reconnect_url', 'presence_change', 'hello', 'user_typing', 'message_deleted', 'bot_message', 'im_open', 'im_close', 'channel_topic'].includes(msgType)) {
       return;
     }
     console.log('type', msgType);
@@ -453,11 +458,20 @@ export default class Bot {
   }
   
   startPriceBot() {
-    if(this.getPriceInterval) Meteor.clearInterval(this.getPriceInterval);
-  
-    if(this.team.settings.enablePriceAnnouncements) {
-      console.log(this.team.settings.priceAnnouncementsInterval);
-      this.getPriceInterval = Meteor.setInterval(this.setPrice, this.team.settings.priceAnnouncementsInterval * 1000 * 60);
+    if(this.getPriceIntervals) {
+      this.getPriceIntervals.forEach(interval => Meteor.clearInterval(interval));
+    } else {
+      this.getPriceIntervals = [];
+    }
+    
+    if(this.team.settings.priceBots && this.team.settings.priceBots.length > 0) {
+      this.team.settings.priceBots.forEach(priceBot => {
+        if (this.team.settings.enablePriceAnnouncements) {
+          this.getPriceIntervals.push(Meteor.setInterval(() => {
+            this.setPrice(priceBot)
+          }, priceBot.interval * 1000 * 60));
+        }
+      });
     }
   }
   

@@ -5,7 +5,7 @@ import AppBar from 'material-ui/AppBar';
 import Tabs, { Tab } from 'material-ui/Tabs';
 import BannedUsers from '/imports/ui/pages/tabs/BannedUsers';
 import SpamBotSettings from '/imports/ui/pages/tabs/SpamBotSettings';
-import NormalBotSettings from '/imports/ui/pages/tabs/NormalBotSettings';
+import PriceBotSettings from '/imports/ui/pages/tabs/PriceBotSettings';
 import SlackSettings from '/imports/ui/pages/tabs/SlackSettings';
 
 function TabContainer(props) {
@@ -58,13 +58,13 @@ class Dashboard extends React.Component {
         <AppBar position="static">
           <Tabs value={value} onChange={this.handleChange}>
             <Tab label="Spam Bot Settings" />
-            <Tab label="Normal Bot Settings" />
+            <Tab label="Price Bot Settings" />
             <Tab label="Banned User Management" />
             <Tab label="Slack Settings" />
           </Tabs>
         </AppBar>
         {value === 0 && <TabContainer><SpamBotSettings /></TabContainer>}
-        {value === 1 && <TabContainer><NormalBotSettings /></TabContainer>}
+        {value === 1 && <TabContainer><PriceBotSettings /></TabContainer>}
         {value === 2 && <TabContainer><BannedUsers /></TabContainer>}
         {value === 3 && <TabContainer><SlackSettings /></TabContainer>}
       </div>

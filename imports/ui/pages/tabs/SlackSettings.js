@@ -23,6 +23,7 @@ const styles = theme => ({
   },
   button: {
     margin: theme.spacing.unit,
+    width: '96%'
   },
   root: theme.mixins.gutters({
     paddingTop: 16,
@@ -262,11 +263,11 @@ class SlackSettings extends Component {
         </Paper>
         
         {this.state.saving ?
-          <Button raised color="accent" className={classes.button}>
+          <Button raised className="button-warning">
             Saved! Waiting to restart the bot
           </Button>
           :
-          <Button raised color="primary" className={classes.button} onClick={e => this.saveSettings()}>
+          <Button raised className="button-primary" onClick={e => this.saveSettings()}>
             Save Settings
           </Button>
         }

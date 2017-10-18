@@ -46,7 +46,7 @@ class MainDashboardLogin extends Component {
             We've noticed you are an admin on the slack you registered, this means you have access to the settings and management dashboard.
             Click the button below to enter it.
           </Typography>
-          <Button raised color="primary" href="/dashboard" className={classes.button}>
+          <Button raised href="/dashboard" className="button-primary">
             Go to the admin dashboard
           </Button>
         </Paper>

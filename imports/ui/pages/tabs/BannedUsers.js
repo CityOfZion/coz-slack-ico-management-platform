@@ -128,7 +128,7 @@ class BannedUsers extends Component {
           name: user.user.name,
           displayName: user.user.profile.display_name,
           byUser: user.byUser,
-          action: <Button raised color="primary" onClick={e => this.unBan(user.user.id, user.user.name)}>UNBAN</Button>
+          action: <Button raised className="button-primary" onClick={e => this.unBan(user.user.id, user.user.name)}>UNBAN</Button>
         };
         
         rows.push(row);

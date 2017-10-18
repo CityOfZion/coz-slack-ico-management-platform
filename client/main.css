@@ -7,3 +7,88 @@ html, body {
     vertical-align: baseline;
     height: 100%
 }
+
+.button-info {
+    font-weight: bold !important;
+    background-color: #3cbde8 !important;
+    margin-bottom: 0.5vh !important;
+    margin-top: 1vh !important;
+    width: 96% !important;
+    border: 3px solid #3cbde8 !important;
+    color: #fff !important;
+}
+
+.button-info:hover {
+    background-color: #31343d !important;
+}
+
+.button-warning {
+    font-weight: bold !important;
+    margin-bottom: 0.5vh !important;
+    margin-top: 1vh !important;
+    width: 96% !important;
+    border: 3px solid #ffbb39 !important;
+    background-color: #ffbb39 !important;
+    color: #000 !important;
+}
+
+.button-warning:hover {
+    color: #fff !important;
+    background-color: #31343d !important;
+}
+
+.button-danger {
+    font-weight: bold !important;
+    margin-bottom: 0.5vh !important;
+    margin-top: 1vh !important;
+    width: 96% !important;
+    background-color: #ff6479 !important;
+    border: 3px solid #ff6479 !important;
+    color: #fff !important;
+}
+
+.button-danger:hover {
+    background-color: #31343d !important;
+}
+
+.button-primary {
+    font-weight: bold !important;
+    margin-bottom: 0.5vh !important;
+    margin-top: 1vh !important;
+    width: 96% !important;
+    background-color: #4598ff !important;
+    border: 3px solid #4598ff !important;
+    color: #fff !important;
+}
+
+.button-primary:hover {
+    background-color: #31343d !important;
+}
+
+.button-default {
+    font-weight: bold !important;
+    margin-bottom: 0.5vh !important;
+    margin-top: 1vh !important;
+    width: 96% !important;
+    background-color: #52575e !important;
+    border: 3px solid #52575e !important;
+    color: #fff !important;
+}
+
+.button-default:hover {
+    background-color: #31343d !important;
+}
+
+.button-success {
+    font-weight: bold !important;
+    margin-bottom: 0.5vh !important;
+    margin-top: 1vh !important;
+    width: 96% !important;
+    background-color: #58bf00 !important;
+    border: 3px solid #58bf00 !important;
+    color: #fff !important;
+}
+
+.button-success:hover {
+    background-color: #31343d !important;
+}

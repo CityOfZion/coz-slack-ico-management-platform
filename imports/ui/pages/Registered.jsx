@@ -18,6 +18,7 @@ const styles = theme => ({
   },
   button: {
     margin: theme.spacing.unit,
+    width: '96%'
   },
   input: {
     display: 'none',
@@ -56,7 +57,7 @@ class Registered extends Component {
             <Typography className={classes.content} type="body1" component="p">
               {currentUser ? ` You have been registered to ${currentUser.profile.auth.team}, you can now post messages on the slack board.` : ''}
             </Typography>
-            <Button raised color="primary" className={classes.button} onClick={this.goToSlack}>
+            <Button raised className="button-primary" onClick={this.goToSlack}>
               Go back to Slack
             </Button>
           </Paper>
