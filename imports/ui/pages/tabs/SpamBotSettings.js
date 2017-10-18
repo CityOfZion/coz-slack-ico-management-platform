@@ -138,6 +138,13 @@ class SpamBotSettings extends Component {
     this.setState({triggerWords});
   };
   
+  handleDomainRemove = data => () => {
+    const suspiciousEmailDomains = [...this.state.suspiciousEmailDomains];
+    const domainToDelete = suspiciousEmailDomains.indexOf(data);
+    suspiciousEmailDomains.splice(domainToDelete, 1);
+    this.setState({suspiciousEmailDomains});
+  };
+  
   handleUserNameRemove = data => () => {
     const usernames = [...this.state.removeDuplicateUserNames];
     const nameToDelete = usernames.indexOf(data);
@@ -150,7 +157,7 @@ class SpamBotSettings extends Component {
   };
   
   handleDomainAdd = event => {
-    this.setState({triggerWord: event.target.value});
+    this.setState({suspiciousEmailDomain: event.target.value});
   };
   
   handleUserNameAdd = event => {
@@ -319,7 +326,7 @@ class SpamBotSettings extends Component {
               <Chip
                 label={data}
                 key={index}
-                onRequestDelete={this.handleWordRemove(data)}
+                onRequestDelete={this.handleDomainRemove(data)}
                 className={classes.chip}
               />
             );
