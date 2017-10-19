@@ -149,7 +149,7 @@ class SpamBotSettings extends Component {
   };
   
   handleUserNameRemove = data => () => {
-    const restrictedUserNames = [...this.state.removeDuplicateUserNames];
+    const restrictedUserNames = [...this.state.restrictedUserNames];
     const nameToDelete = restrictedUserNames.indexOf(data);
     restrictedUserNames.splice(nameToDelete, 1);
     this.setState({restrictedUserNames});
