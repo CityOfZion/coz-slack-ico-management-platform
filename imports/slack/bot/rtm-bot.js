@@ -173,18 +173,26 @@ export default class Bot {
   }
   
   start() {
-    this.rtm.start();
-    this.messageEvent();
-    this.authenticateEvent();
-    this.disconnectEvent();
-    this.startPriceBot();
+    try {
+      if (this.rtm) this.rtm.start();
+      this.messageEvent();
+      this.authenticateEvent();
+      this.disconnectEvent();
+      this.startPriceBot();
+    } catch(e) {
+      console.log(e);
+    }
   }
   
   restart() {
-    this.rtm.disconnect();
-    this.getTeam();
-    this.rtm.start();
-    this.startPriceBot();
+    try {
+      if (this.rtm) this.rtm.disconnect();
+      this.getTeam();
+      if (this.rtm) this.rtm.start();
+      this.startPriceBot();
+    } catch(e) {
+      console.log(e);
+    }
   }
   
   async handleMessageEvent(message) {
@@ -440,21 +448,31 @@ export default class Bot {
   }
   
   messageEvent() {
-    this.rtm.on(CLIENT_EVENTS.RTM.RAW_MESSAGE, Meteor.bindEnvironment(message => {
-      const msg = JSON.parse(message);
-      this.handleMessageEvent(msg);
-  
-    }));
+    try {
+      this.rtm.on(CLIENT_EVENTS.RTM.RAW_MESSAGE, Meteor.bindEnvironment(message => {
+        const msg = JSON.parse(message);
+        this.handleMessageEvent(msg);
+    
+      }));
+    } catch (e) {
+      console.log(e);
+    }
   }
   
   disconnectEvent() {
-    this.rtm.on(CLIENT_EVENTS.RTM.DISCONNECT, Meteor.bindEnvironment(message => {
-      console.log('Disconnected');
-      Bots.upsert({teamId: this.team.id}, {$set: {
-        running: false
-      }});
-      this.rtm.reconnect();
-    }));
+    try {
+      this.rtm.on(CLIENT_EVENTS.RTM.DISCONNECT, Meteor.bindEnvironment(message => {
+        console.log('Disconnected');
+        Bots.upsert({teamId: this.team.id}, {
+          $set: {
+            running: false
+          }
+        });
+        this.rtm.reconnect();
+      }));
+    } catch (e) {
+      console.log(e);
+    }
   }
   
   startPriceBot() {
@@ -476,15 +494,21 @@ export default class Bot {
   }
   
   authenticateEvent() {
-    this.rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, Meteor.bindEnvironment(message => {
-      console.log('Authenticated');
-      Bots.upsert({teamId: this.team.id}, {$set: {
-        teamId: this.team.id,
-        teamName: this.team.name,
-        token: this.team.bot,
-        running: true,
-        dateStarted: new Date()
-      }});
-    }));
+    try {
+      this.rtm.on(CLIENT_EVENTS.RTM.AUTHENTICATED, Meteor.bindEnvironment(message => {
+        console.log('Authenticated');
+        Bots.upsert({teamId: this.team.id}, {
+          $set: {
+            teamId: this.team.id,
+            teamName: this.team.name,
+            token: this.team.bot,
+            running: true,
+            dateStarted: new Date()
+          }
+        });
+      }));
+    } catch (e) {
+      console.log(e);
+    }
   }
 }
