@@ -56,6 +56,9 @@ const styles = theme => ({
     margin: '2vh 0 2vh 0',
     display: 'flex'
   },
+  content: {
+    padding: '1vw'
+  },
   paper: {
     width: '90%',
     paddingLeft: '2vw',
@@ -146,10 +149,10 @@ class SpamBotSettings extends Component {
   };
   
   handleUserNameRemove = data => () => {
-    const usernames = [...this.state.removeDuplicateUserNames];
-    const nameToDelete = usernames.indexOf(data);
-    usernames.splice(nameToDelete, 1);
-    this.setState({usernames});
+    const restrictedUserNames = [...this.state.removeDuplicateUserNames];
+    const nameToDelete = restrictedUserNames.indexOf(data);
+    restrictedUserNames.splice(nameToDelete, 1);
+    this.setState({restrictedUserNames});
   };
   
   handleWordAdd = event => {

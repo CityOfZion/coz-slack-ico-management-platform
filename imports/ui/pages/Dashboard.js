@@ -7,6 +7,7 @@ import BannedUsers from '/imports/ui/pages/tabs/BannedUsers';
 import SpamBotSettings from '/imports/ui/pages/tabs/SpamBotSettings';
 import PriceBotSettings from '/imports/ui/pages/tabs/PriceBotSettings';
 import Donation from '/imports/ui/pages/tabs/Donation';
+import Invitations from '/imports/ui/pages/tabs/Invitations';
 import SlackSettings from '/imports/ui/pages/tabs/SlackSettings';
 
 function TabContainer(props) {
@@ -62,6 +63,7 @@ class Dashboard extends React.Component {
             <Tab label="Price Bot Settings" />
             <Tab label="Banned User Management" />
             <Tab label="Slack Settings" />
+            <Tab label="Invitations" />
             <Tab label="Donate" />
           </Tabs>
         </AppBar>
@@ -69,7 +71,8 @@ class Dashboard extends React.Component {
         {value === 1 && <TabContainer><PriceBotSettings /></TabContainer>}
         {value === 2 && <TabContainer><BannedUsers /></TabContainer>}
         {value === 3 && <TabContainer><SlackSettings /></TabContainer>}
-        {value === 4 && <TabContainer><Donation /></TabContainer>}
+        {value === 4 && <TabContainer><Invitations /></TabContainer>}
+        {value === 5 && <TabContainer><Donation /></TabContainer>}
       </div>
     );
   }

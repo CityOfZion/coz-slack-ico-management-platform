@@ -52,6 +52,9 @@ const styles = theme => ({
     margin: '2vh 0 2vh 0',
     display: 'flex'
   },
+  content: {
+    padding: '1vw'
+  },
   paper: {
     width: '90%',
     paddingLeft: '2vw',

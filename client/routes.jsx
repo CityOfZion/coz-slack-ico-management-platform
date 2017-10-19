@@ -1,8 +1,9 @@
 import React from 'react';
-import MainLayout from "../imports/ui/MainLayout";
-import Login from "../imports/ui/pages/Login";
-import Registered from "../imports/ui/pages/Registered";
-import Dashboard from "../imports/ui/pages/Dashboard";
+import MainLayout from "/imports/ui/MainLayout";
+import Login from "/imports/ui/pages/Login";
+import Registered from "/imports/ui/pages/Registered";
+import Dashboard from "/imports/ui/pages/Dashboard";
+import UserInvitePage from "/imports/ui/UserInvitePage";
 
 Router.route('/', {
   onBeforeAction() {
@@ -43,5 +44,14 @@ Router.route('/dashboard', {
   },
   action() {
     ReactLayout.render(MainLayout, {content: <Dashboard/>});
+  }
+});
+
+Router.route('/invite/:teamId', {
+  subscriptions() {
+    Meteor.subscribe('getTeamByIdForInvite', this.params.teamId);
+  },
+  action() {
+    ReactLayout.render(UserInvitePage);
   }
 });

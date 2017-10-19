@@ -1,9 +1,17 @@
 import {Meteor} from 'meteor/meteor';
 import React, {Component} from 'react';
+import Button from 'material-ui/Button'
 import PropTypes from 'prop-types';
 import {withStyles} from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
 import Paper from 'material-ui/Paper';
+import Typography from 'material-ui/Typography';
+import Switch from 'material-ui/Switch';
+import {FormLabel, FormControl, FormControlLabel} from 'material-ui/Form';
+import Chip from 'material-ui/Chip';
+import TextField from 'material-ui/TextField';
+import {MenuItem} from 'material-ui/Menu';
+import Select from 'material-ui/Select';
+import Input, {InputLabel} from 'material-ui/Input';
 
 import {createContainer} from 'meteor/react-meteor-data';
 
@@ -39,6 +47,10 @@ const styles = theme => ({
   chip: {
     margin: theme.spacing.unit / 2,
   },
+  content: {
+    padding: '1vw',
+    wordWrap: 'break-word'
+  },
   row: {
     display: 'flex',
     justifyContent: 'left',
@@ -48,9 +60,6 @@ const styles = theme => ({
     margin: '2vh 0 2vh 0',
     display: 'flex'
   },
-  content: {
-    padding: '1vw'
-  },
   paper: {
     width: '90%',
     paddingLeft: '2vw',
@@ -59,14 +68,10 @@ const styles = theme => ({
   }
 });
 
-class Donation extends Component {
+class UserInvitePage extends Component {
   
   constructor(props) {
     super(props);
-    
-    this.state = {
-      loading: true
-    };
   }
   
   componentDidMount() {
@@ -74,7 +79,6 @@ class Donation extends Component {
   }
   
   componentWillReceiveProps(nextProps) {
-    if (nextProps.loadingUser !== this.props.loadingUser) this.checkSubs(nextProps);
     if(nextProps.loadingTeam !== this.props.loadingTeam) this.checkSubs(nextProps);
   }
   
@@ -82,56 +86,50 @@ class Donation extends Component {
     if (!props.loadingTeam && props.team) {
       this.setState({...props.team.settings});
     }
-    
-    if(!props.loadingBanned && props.banned) {
-      this.parseUsers(props.banned);
-    }
   }
   
   render() {
     const {classes} = this.props;
-    
+  
     return (
       <div className={classes.main}>
         <Typography className={classes.title} type="headline" component="h3">
-          Donate
+          Request invitation
         </Typography>
         <Paper className={classes.paper} elevation={3}>
-          <Typography className={classes.content} type="body1" component="p">
-            This system is completely Open Source and free to use. Of course we appreciate it if it's users are willing to donate to us for developing it.
-          </Typography>
-          <Typography className={classes.content} type="body1" component="p">
-            Any donation is more than welcome:<br />
-            BTC: 16EB1e16h149B2hud3jQT9BGWA85K4kH1t <br />
-            ETH: 0x5ba129171a322ec08be67983a46e2b3140e44d5f <br />
-            NEO: AR3HZKcyjQg6iCKSWaUQniVX1ThX8rqeMD
-          </Typography>
+          <FormControl className={classes.formControl} component="fieldset">
+            <FormLabel className={classes.label}>This lets you specify if you want to use this system to manage your invites.</FormLabel>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={this.state.enableInvitations}
+                  onChange={(event, checked) => this.setState({enableInvitations: checked})}
+                />
+              }
+              label={this.state.enableInvitations ? "Enabled" : "Disabled"}
+            />
+          </FormControl>
         </Paper>
       </div>
     );
   }
 }
 
-Donation.propTypes = {
+UserInvitePage.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-const DonationContainer = createContainer(() => {
-  const currentUser = Meteor.user();
-  const teamSubscription = Meteor.subscribe('getTeam');
-  const userSubscription = Meteor.subscribe('user');
-  
+const UserInvitePageContainer = createContainer(() => {
+  const teamSubscription = Meteor.subscribe('getTeamByIdForInvite', Router.current().params.teamId);
   const loadingTeam = !teamSubscription.ready();
-  const loadingUser = !userSubscription.ready();
+  const team = Teams.findOne({id: Router.current().params.teamId}) || null;
   
-  const team = Teams.findOne({id: currentUser ? currentUser.profile.auth.team_id : ''}) || null;
+  console.log(team);
   
   return {
-    currentUser: currentUser,
-    loadingUser: loadingUser,
     team: team,
-    loadingTeam: loadingTeam,
+    loadingTeam: loadingTeam
   };
-}, Donation);
+}, UserInvitePage);
 
-export default withStyles(styles)(DonationContainer);
+export default withStyles(styles)(UserInvitePageContainer);

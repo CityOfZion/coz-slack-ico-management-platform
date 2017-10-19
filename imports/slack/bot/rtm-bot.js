@@ -376,7 +376,7 @@ export default class Bot {
         if(this.team.settings.removeOtherSlackBannedUserEmails && !isAdmin(user) && !isBanned) {
           const bannedEmail = Banned.find({"user.profile.email": message.user.email}).count();
           if(bannedEmail > 0) {
-            this.notifyChannel(`User with id \`${message.user.id}\` and name \`${message.user.name}\` has been preemptively banned as the email address was used to spam another slack`);
+            this.notifyChannel(`User with id \`${message.user.id}\`, name \`${message.user.name}\` and email \`${message.user.email}\` has been preemptively banned as the email address was used to spam another slack`);
             this.banUser(message.user, 'USER WAS BANNED ON OTHER SLACK');
           }
         }

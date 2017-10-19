@@ -53,6 +53,9 @@ const styles = theme => ({
     color: '#1e1e42',
     fontSize: '1.2em'
   },
+  content: {
+    padding: '1vw'
+  },
   chip: {
     margin: theme.spacing.unit / 2,
   },
