@@ -3,16 +3,16 @@ import {isAdmin} from '/imports/slack/helpers';
 Meteor.methods({
   enableUser(userId, name) {
     if(!isAdmin(Meteor.user())) return false;
-    
-    const bot = BotStorage[Meteor.user().profile.team_id];
+    const bot = BotStorage[Meteor.user().profile.auth.team_id];
     if(bot) {
-      bot.enableUser(userId, name, Meteor.user().user.profile.identity.user.name);
+      bot.enableUser(userId, name, Meteor.user().profile.auth.user.name);
+      
     }
   },
   importMessages() {
     if(!isAdmin(Meteor.user())) return false;
   
-    const bot = BotStorage[Meteor.user().profile.team_id];
+    const bot = BotStorage[Meteor.user().profile.auth.team_id];
   
     if(bot) {
       bot.importMessages();
@@ -21,7 +21,7 @@ Meteor.methods({
   importFiles() {
     if(!isAdmin(Meteor.user())) return false;
   
-    const bot = BotStorage[Meteor.user().profile.team_id];
+    const bot = BotStorage[Meteor.user().profile.auth.team_id];
   
     if(bot) {
       bot.importFiles();
