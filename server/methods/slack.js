@@ -21,11 +21,14 @@ const createSharedInviteNoCaptcha = teamId => {
 
 Meteor.methods({
   enableUser(userId, name) {
+    console.log('trying to enable user');
     if(!isAdmin(Meteor.user())) return false;
+    console.log('Caller was an admin');
     const bot = BotStorage[Meteor.user().profile.auth.team_id];
     if(bot) {
+      console.log('bot was found calling enable function');
       bot.enableUser(userId, name, Meteor.user().profile.auth.user.name);
-      
+      return {success: true}
     }
   },
   importMessages() {

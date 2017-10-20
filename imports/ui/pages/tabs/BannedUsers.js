@@ -88,7 +88,7 @@ class BannedUsers extends Component {
         { name: 'email', title: 'Email' },
         { name: 'realName', title: 'Real Name' },
         { name: 'name', title: 'Name' },
-        { name: 'displayName', title: 'Display Name' },
+        { name: 'reason', title: 'Reason' },
         { name: 'byUser', title: 'By User' },
         { name: 'action', title: 'Action' },
       ],
@@ -129,7 +129,6 @@ class BannedUsers extends Component {
           date: dateFormat(user.banDate.toString(), 'yyyy-mm-dd hh:mm'),
           realName: user.user.profile.real_name,
           name: user.user.name,
-          displayName: user.user.profile.display_name,
           byUser: user.byUser,
           action: <Button raised className="button-primary" onClick={e => this.unBan(user.user.id, user.user.name)}>UNBAN</Button>
         };
