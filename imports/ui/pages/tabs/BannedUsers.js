@@ -5,6 +5,7 @@ import {withStyles} from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button'
+import Tooltip from 'material-ui/Tooltip';
 
 import {
   SortingState,
@@ -88,7 +89,6 @@ class BannedUsers extends Component {
         { name: 'email', title: 'Email' },
         { name: 'realName', title: 'Real Name' },
         { name: 'name', title: 'Name' },
-        { name: 'reason', title: 'Reason' },
         { name: 'byUser', title: 'By User' },
         { name: 'action', title: 'Action' },
       ],
@@ -124,12 +124,12 @@ class BannedUsers extends Component {
   
       users.forEach(user => {
         const row = {
-          userId: user.user.id,
-          email: user.user.profile.email,
-          date: dateFormat(user.banDate.toString(), 'yyyy-mm-dd hh:mm'),
-          realName: user.user.profile.real_name,
-          name: user.user.name,
-          byUser: user.byUser,
+          userId: <Tooltip label={user.user.id} title={user.user.id} placement="top-end"><Typography type="body1" component="span">{user.user.id}</Typography></Tooltip>,
+          email: <Tooltip label={user.user.profile.email} title={user.user.profile.email} placement="top-end"><Typography type="body1" component="span">{user.user.profile.email}</Typography></Tooltip>,
+          date: <Tooltip label={dateFormat(user.banDate.toString(), 'yyyy-mm-dd hh:mm')} title={dateFormat(user.banDate.toString(), 'yyyy-mm-dd hh:mm')} placement="top-end"><Typography type="body1" component="span">{dateFormat(user.banDate.toString(), 'yyyy-mm-dd hh:mm')}</Typography></Tooltip>,
+          realName: <Tooltip label={user.user.profile.real_name} title={user.user.profile.real_name} placement="top-end"><Typography type="body1" component="span">{user.user.profile.real_name}</Typography></Tooltip>,
+          name: <Tooltip label={user.user.name} title={user.user.name} placement="top-end"><Typography type="body1" component="span">{user.user.name}</Typography></Tooltip>,
+          byUser: <Tooltip label={user.byUser} title={user.byUser} placement="top-end"><Typography type="body1" component="span">{user.byUser}</Typography></Tooltip>,
           action: <Button raised className="button-primary" onClick={e => this.unBan(user.user.id, user.user.name)}>UNBAN</Button>
         };
         
