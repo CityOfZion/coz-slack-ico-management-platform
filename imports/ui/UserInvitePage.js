@@ -171,6 +171,10 @@ class UserInvitePage extends Component {
               Request invite <br />{this.state.settings.inviteLimitReached ? '(this will redirect you)' : ''}
             </Button>
           }
+  
+          <Button raised className="button-info" onClick={e => window.location.href = this.props.team.url}>
+            Or go to our slack here
+          </Button>
         </div>
         : 'This team does not accept new invites'}
     </div>
