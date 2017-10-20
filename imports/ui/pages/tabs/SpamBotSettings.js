@@ -88,7 +88,7 @@ class SpamBotSettings extends Component {
       removeDuplicateUserNames: true,
       removePublicChannelSpam: true,
       removeSuspiciousEmailDomainUsers: true,
-      removeOtherSlackBannedUserEmails: true,
+      removeOtherSlackBannedUserEmails: false,
       
       suspiciousEmailDomains: [],
       triggerWords: [],
@@ -632,7 +632,7 @@ class SpamBotSettings extends Component {
         </Paper>
         
         <Paper className={classes.paper} elevation={3}>
-          {this.removeOtherSlackBannedUserEmails()}
+          {/*{this.removeOtherSlackBannedUserEmails()}*/}
           {this.removeSuspiciousEmailDomainUsers()}
           {this.state.removeSuspiciousEmailDomainUsers ? this.suspiciousEmailDomains() : ''}
         </Paper>

@@ -6,5 +6,6 @@ Meteor.startup(() => {
     const rtm = new bot(team);
     BotStorage[team.id] = rtm;
     BotStorage[team.id].start();
-  })
+  });
+  
 });

@@ -86,7 +86,7 @@ export default class Bot {
   };
   
   enableUser = (user, username, byUser) => {
-    Banned.remove({"user.id": user, team_id: this.team.id});
+    Banned.remove({"user.id": user, team_id: this.team.id}, {multi: true});
     this.log('enable', {user, username, byUser});
     if(!this.team.settings.adminToken) return;
     const apiUrl = `${this.team.url}api/users.admin.setRegular?token=${this.team.settings.adminToken}&user=${user}`;
@@ -197,7 +197,7 @@ export default class Bot {
   
   async handleMessageEvent(message) {
     const msgType = messageType(message);
-    if (['pong', 'reconnect_url', 'presence_change', 'hello', 'user_typing', 'message_deleted', 'bot_message', 'im_open', 'im_close', 'channel_topic'].includes(msgType)) {
+    if (['pong', 'reconnect_url', 'presence_change', 'hello', 'user_typing', 'message_deleted', 'bot_message', 'im_open', 'im_close', 'channel_topic', 'shared_invite_code_created'].includes(msgType)) {
       return;
     }
     console.log('type', msgType);
@@ -219,7 +219,6 @@ export default class Bot {
     
     // get user info from slack instead
     if(!user && typeof message.user === 'string') {
-      console.log(message.user);
       const userResult = await this.web.users.info(message.user);
       console.log('GETTING SLACK USER INSTEAD!!');
       if(userResult.ok) {
@@ -325,7 +324,6 @@ export default class Bot {
         if(this.team.settings.removeLinks && !isAdmin(user)) {
           console.log('REMOVING URL');
           const newText = removeUrl(message.text);
-          console.log('MESSAGE', message.text, newText);
           if(message.text !== newText) {
             this.web.chat.update(message.ts, message.channel, newText, {as_user: true}, (err, res) => {
               console.log('UPDATING MSG WITHOUT URLS2', res, err);
@@ -373,13 +371,13 @@ export default class Bot {
           }
         }
         
-        if(this.team.settings.removeOtherSlackBannedUserEmails && !isAdmin(user) && !isBanned) {
-          const bannedEmail = Banned.find({"user.profile.email": message.user.email}).count();
-          if(bannedEmail > 0) {
-            this.notifyChannel(`User with id \`${message.user.id}\`, name \`${message.user.name}\` and email \`${message.user.email}\` has been preemptively banned as the email address was used to spam another slack`);
-            this.banUser(message.user, 'USER WAS BANNED ON OTHER SLACK');
-          }
-        }
+        // if(this.team.settings.removeOtherSlackBannedUserEmails && !isAdmin(user) && !isBanned) {
+        //   const bannedEmail = Banned.find({"user.profile.email": message.user.email}).count();
+        //   if(bannedEmail > 0) {
+        //     this.notifyChannel(`User with id \`${message.user.id}\`, name \`${message.user.name}\` and email \`${message.user.email}\` has been preemptively banned as the email address was used to spam another slack`);
+        //     this.banUser(message.user, 'USER WAS BANNED ON OTHER SLACK');
+        //   }
+        // }
         break;
       case 'file_share':
         if(this.team.settings && !isAdmin(user)) {

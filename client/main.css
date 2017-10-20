@@ -8,6 +8,11 @@ html, body {
     height: 100%
 }
 
+#react-root {
+    height: 100%;
+    width: 100%;
+}
+
 .button-info {
     font-weight: bold !important;
     background-color: #3cbde8 !important;

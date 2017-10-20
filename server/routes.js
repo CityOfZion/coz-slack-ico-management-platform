@@ -4,7 +4,6 @@ import {isAdmin} from "../imports/slack/helpers";
 Router.route('/slack/events/request', function () {
   const req = this.request;
   const res = this.response;
-  console.log(req.body);
   
   res.end(JSON.stringify(req.body));
   
@@ -25,11 +24,9 @@ Router.route('/slack/command/report', function () {
   const data = {...req.body};
   
   const splitData = data.text.split(' ');
-  console.log('DATA', data.text);
   const userString = splitData.shift();
   const reason = splitData.join(' ');
   
-  console.log('REPORTING', userString, reason.trim());
   if (!reason || reason.trim() === '') {
     console.log('NO REASON GIVEN!');
     res.end('You did not give a reason for the report.');

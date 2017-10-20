@@ -7,11 +7,8 @@ import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 import Switch from 'material-ui/Switch';
 import {FormLabel, FormControl, FormControlLabel} from 'material-ui/Form';
-import Chip from 'material-ui/Chip';
 import TextField from 'material-ui/TextField';
-import {MenuItem} from 'material-ui/Menu';
-import Select from 'material-ui/Select';
-import Input, {InputLabel} from 'material-ui/Input';
+import Recaptcha from 'react-recaptcha';
 
 import {createContainer} from 'meteor/react-meteor-data';
 
@@ -72,14 +69,19 @@ class Donation extends Component {
   
   constructor(props) {
     super(props);
+    this.recaptchaInstance = false;
     
     this.state = {
       enableInvitations: false,
-      enableCaptcha: false,
+      enableCaptcha: true,
       adminToken: '',
       invitationTestResult: '',
       inviteTestEmail: '',
       inviteLimitReached: false,
+      inviteLimitReachedTest: false,
+      captchaSecret: '',
+      captchaResponse: '',
+      captchaPublicKey: '',
       loading: true,
       saving: false
     };
@@ -91,7 +93,7 @@ class Donation extends Component {
   
   componentWillReceiveProps(nextProps) {
     if (nextProps.loadingUser !== this.props.loadingUser) this.checkSubs(nextProps);
-    if(nextProps.loadingTeam !== this.props.loadingTeam) this.checkSubs(nextProps);
+    if (nextProps.loadingTeam !== this.props.loadingTeam) this.checkSubs(nextProps);
   }
   
   checkSubs(props) {
@@ -99,7 +101,7 @@ class Donation extends Component {
       this.setState({...props.team.settings});
     }
     
-    if(!props.loadingBanned && props.banned) {
+    if (!props.loadingBanned && props.banned) {
       this.parseUsers(props.banned);
     }
   }
@@ -108,7 +110,8 @@ class Donation extends Component {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>This lets you specify if you want to use this system to manage your invites.</FormLabel>
+        <FormLabel className={classes.label}>This lets you specify if you want to use this system to manage your
+          invites.</FormLabel>
         <FormControlLabel
           control={
             <Switch
@@ -118,6 +121,34 @@ class Donation extends Component {
           }
           label={this.state.enableInvitations ? "Enabled" : "Disabled"}
         />
+      </FormControl>
+    );
+  };
+  
+  captchaSecret() {
+    const {classes} = this.props;
+    return (
+      <FormControl className={classes.formControl} component="fieldset">
+        <FormLabel className={classes.label}>To be able to use the captcha feature, if you are using your own domain
+          name, you will need to register it on google and put the key in here.<br/>
+          Please visit <a href="https://www.google.com/recaptcha/admin">this link</a> to add your domain.
+        </FormLabel>
+        <div className={classes.row}>
+          <TextField
+            label="Fill in your secret token"
+            value={this.state.captchaSecret}
+            margin="normal"
+            fullWidth={true}
+            onChange={event => this.setState({captchaSecret: event.target.value})}
+          />
+          <TextField
+            label="Fill in your public token"
+            value={this.state.captchaPublicKey}
+            margin="normal"
+            fullWidth={true}
+            onChange={event => this.setState({captchaPublicKey: event.target.value})}
+          />
+        </div>
       </FormControl>
     );
   };
@@ -144,7 +175,8 @@ class Donation extends Component {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>Do you want to use this site as the landing page for invites, if no then we will provide a page you can include in an iframe.</FormLabel>
+        <FormLabel className={classes.label}>Do you want to use this site as the landing page for invites, if no then we
+          will provide a page you can include in an iframe.</FormLabel>
         <FormControlLabel
           control={
             <Switch
@@ -166,15 +198,34 @@ class Donation extends Component {
         <FormControlLabel
           control={
             <Switch
-              checked={this.state.inviteLimitReached}
-              onChange={(event, checked) => this.setState({inviteLimitReached: checked})}
+              checked={this.state.inviteLimitReachedTest}
+              onChange={(event, checked) => this.setState({inviteLimitReachedTest: checked})}
             />
           }
-          label={this.state.inviteLimitReached ? "Yes" : "No"}
+          label={this.state.inviteLimitReachedTest ? "Yes" : "No"}
         />
       </FormControl>
     );
   };
+  
+  recaptchaCallback = data => {
+    this.setState({captchaResponse: data});
+  };
+  
+  recaptcha() {
+    const {classes} = this.props;
+    return <FormControl className={classes.formControl} component="fieldset">
+      <FormLabel className={classes.label}>To properly test this feature you will need to save the settings first if you
+        enabled or disabled to captcha.
+      </FormLabel>
+      <Recaptcha
+        ref={e => this.recaptchaInstance = e}
+        sitekey={this.props.team.settings.captchaPublicKey}
+        render="explicit"
+        verifyCallback={this.recaptchaCallback}
+      />
+    </FormControl>
+  }
   
   specialAdminToken() {
     const {classes} = this.props;
@@ -216,7 +267,8 @@ class Donation extends Component {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>Give an email, please test this just once, as it counts towards the invite limit reached if that email doesn't accept the invite.</FormLabel>
+        <FormLabel className={classes.label}>Give an email, please test this just once, as it counts towards the invite
+          limit reached if that email doesn't accept the invite.</FormLabel>
         <div className={classes.row}>
           <TextField
             label="Fill in an email address"
@@ -231,16 +283,33 @@ class Donation extends Component {
   };
   
   invite() {
-    if(this.state.inviteLimitReached) {
-      console.log('createSharedInvite', this.props.team.id);
-      Meteor.call('createSharedInvite', this.props.team.id, (err, res) => {
-        this.setState({invitationTestResult: `The user will be redirected to this URL which is valid for 5 minutes:
-         ${res}`});
+    if (this.state.inviteLimitReachedTest) {
+      Meteor.call('createSharedInvite', Meteor.user().profile.auth.team_id, this.state.captchaResponse, (err, res) => {
+        console.log('createSharedInvite', err, res);
+        if (res.error) {
+          this.setState({
+            invitationTestResult: `Error: ${res.error}`
+          });
+          if(this.state.enableCaptcha) this.recaptchaInstance.reset();
+        } else if(res.refresh) {
+          this.setState({
+            invitationTestResult: `Error: ${res.refresh}`
+          });
+          if(this.state.enableCaptcha) this.recaptchaInstance.reset();
+        } else {
+          this.setState({
+            invitationTestResult: `The user will be redirected to this URL which is valid for 5 minutes: ${res.result || res.error}`
+          });
+        }
       });
     } else {
-      console.log('createAdminEmailInvite', this.props.team.id, this.state.inviteTestEmail);
-      Meteor.call('createAdminEmailInvite', this.props.team.id, this.state.inviteTestEmail, (err, res) => {
-        this.setState({invitationTestResult: res});
+      Meteor.call('createAdminEmailInvite', Meteor.user().profile.auth.team_id, this.state.inviteTestEmail, this.state.captchaResponse, (err, res) => {
+        if (res.error) {
+          this.setState({invitationTestResult: 'Error:' + res.error});
+          if(this.state.enableCaptcha) this.recaptchaInstance.reset();
+        } else {
+          this.setState({invitationTestResult: res.result});
+        }
       });
     }
   }
@@ -262,9 +331,10 @@ class Donation extends Component {
     delete data.saving;
     delete data.invitationTestResult;
     delete data.inviteTestEmail;
-    delete data.inviteLimitReached;
+    delete data.inviteLimitReachedTest;
+    delete data.captchaResponse;
     
-    Meteor.call('saveSettings', data, (err, res) => {
+    Meteor.call('saveSettings', data, false, (err, res) => {
       Meteor.setTimeout(() => this.setState({saving: false}), 1000);
     });
   };
@@ -279,31 +349,35 @@ class Donation extends Component {
         </Typography>
         <Paper className={classes.paper} elevation={3}>
           <Typography className={classes.content} type="body1" component="p">
-            There are multiple ways to manage invitations, one is through API the other through invitations links.<br />
+            There are multiple ways to manage invitations, one is through API the other through invitations links.<br/>
             For some teams the API method has been disabled by Slack and you will receive an error with <strong>invite_limit_reached</strong>.
-            This system is made so that a fallback will be used if this error presents itself.
+            This system is made so that a fallback will be used if this error presents itself.<br />
+            <br />
+            If you activate this system your invite link will be here: <strong>https://slack-helper.cityofzion.io/invite/{this.props.team.id}</strong>
           </Typography>
         </Paper>
         <Paper className={classes.paper} elevation={3}>
           {this.enableInvitations()}
           {this.state.enableInvitations && (!this.props.team.settings.adminToken || this.props.team.settings.adminToken.trim() === '') ? this.specialAdminToken() : ''}
           {this.state.enableInvitations ? this.enableCaptcha() : ''}
+          {this.state.enableCaptcha ? this.captchaSecret() : ''}
           {this.state.enableInvitations ? this.enableLandingPage() : ''}
         </Paper>
         
         {this.state.enableInvitations ?
           <Paper className={classes.paper} elevation={3}>
             <Typography className={classes.content} type="body1" component="p">
-              <strong>Result will be shown here: </strong><br />
-              {this.props.team.settings.inviteLimitReached ? <div></div>
+              <strong>Result will be shown here: </strong><br/>
+              {this.props.team.settings.inviteLimitReached ? ''
                 : ''}
               {this.state.invitationTestResult}
             </Typography>
             {this.inviteLimitReached()}
-            {!this.state.inviteLimitReached ? this.inviteEmail() : ''}
+            {!this.state.inviteLimitReachedTest ? this.inviteEmail() : ''}
+            {this.state.enableCaptcha ? this.recaptcha() : ''}
             {this.testInvitations()}
           </Paper>
-        : ''}
+          : ''}
         
         {this.state.saving ?
           <Button raised className="button-warning">
