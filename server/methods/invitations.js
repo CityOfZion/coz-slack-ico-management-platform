@@ -1,6 +1,6 @@
 Meteor.methods({
   verifyCaptcha(secret, token) {
-    
+    console.log(secret, token);
     const request = {
       headers: {
         'content-type': 'application/x-www-form-urlencoded',

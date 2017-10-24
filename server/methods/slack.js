@@ -94,13 +94,16 @@ Meteor.methods({
   },
   createSharedInvite(teamId, response = '') {
     try {
+      console.log(teamId, response);
       const team = Teams.findOne({id: teamId});
       if (team.settings.adminToken.trim() === '' && !team.settings.enableInvitations) return '';
       if (team.settings.enableCaptcha) {
         console.log('testing captcha');
+        const settings = AppSettings.findOne({id: 'recaptcha'});
         if (response === '') return {error: 'Captcha invalid'};
     
-        const result = Meteor.call('verifyCaptcha', team.settings.captchaSecret, response);
+        console.log(team.settings.enableLandingPage ? settings.secretKey : team.settings.captchaSecret);
+        const result = Meteor.call('verifyCaptcha', team.settings.enableLandingPage ? settings.secretKey : team.settings.captchaSecret, response);
         if (!result) return {error: 'Captcha invalid'}
     
       }

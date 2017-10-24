@@ -101,8 +101,9 @@ class UserInvitePage extends Component {
   }
   
   checkSubs(props) {
-    if (!props.loadingTeam && props.team) {
-      this.setState({...props.team});
+    if (!props.loadingTeam && props.team && !props.loadingSettings && props.settings) {
+      
+      this.setState({captcha: props.settings, ...props.team});
       this.getTeamIcon(props.team.icon);
     }
   }
@@ -114,7 +115,7 @@ class UserInvitePage extends Component {
   recaptcha() {
     return <Recaptcha
       ref={e => this.recaptchaInstance = e}
-      sitekey={this.state.settings.captchaPublicKey}
+      sitekey={this.state.captcha.publicKey}
       render="explicit"
       verifyCallback={this.recaptchaCallback}
     />
@@ -183,6 +184,7 @@ class UserInvitePage extends Component {
   invite() {
     this.setState({invited: true});
     if (this.state.settings.inviteLimitReached) {
+      console.log(this.state)
       Meteor.call('createSharedInvite', Router.current().params.teamId, this.state.captchaResponse, (err, res) => {
         console.log(res);
         if (res.error) {
@@ -242,12 +244,16 @@ UserInvitePage.propTypes = {
 
 const UserInvitePageContainer = createContainer(() => {
   const teamSubscription = Meteor.subscribe('getTeamByIdForInvite', Router.current().params.teamId);
+  const settingsSubscription = Meteor.subscribe('recaptchaPublicKey');
   const loadingTeam = !teamSubscription.ready();
+  const loadingSettings = !settingsSubscription.ready();
   const team = Teams.findOne({id: Router.current().params.teamId});
-  
+  const settings = AppSettings.findOne({});
   return {
     team: team,
-    loadingTeam: loadingTeam
+    settings: settings,
+    loadingTeam: loadingTeam,
+    loadingSettings: loadingSettings
   };
 }, UserInvitePage);
 

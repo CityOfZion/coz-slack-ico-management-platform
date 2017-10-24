@@ -73,6 +73,7 @@ class Donation extends Component {
     
     this.state = {
       enableInvitations: false,
+      enableLandingPage: true,
       enableCaptcha: true,
       adminToken: '',
       invitationTestResult: '',
@@ -94,15 +95,13 @@ class Donation extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.loadingUser !== this.props.loadingUser) this.checkSubs(nextProps);
     if (nextProps.loadingTeam !== this.props.loadingTeam) this.checkSubs(nextProps);
+    if (nextProps.loadingSettings !== this.props.loadingSettings) this.checkSubs(nextProps);
   }
   
   checkSubs(props) {
-    if (!props.loadingTeam && props.team) {
-      this.setState({...props.team.settings});
-    }
-    
-    if (!props.loadingBanned && props.banned) {
-      this.parseUsers(props.banned);
+    if (!props.loadingTeam && props.team && !props.loadingSettings && props.settings) {
+      console.log(props.settings);
+      this.setState({captcha: props.settings, ...props.team});
     }
   }
   
@@ -175,13 +174,12 @@ class Donation extends Component {
     const {classes} = this.props;
     return (
       <FormControl className={classes.formControl} component="fieldset">
-        <FormLabel className={classes.label}>Do you want to use this site as the landing page for invites, if no then we
-          will provide a page you can include in an iframe.</FormLabel>
+        <FormLabel className={classes.label}>Do you want to use this system as a landing page for invites (currently only option, other options will come in the future).</FormLabel>
         <FormControlLabel
           control={
             <Switch
               checked={this.state.enableLandingPage}
-              onChange={(event, checked) => this.setState({enableLandingPage: checked})}
+              onChange={(event, checked) => this.setState({enableLandingPage: true})}
             />
           }
           label={this.state.enableLandingPage ? "Yes" : "No"}
@@ -216,11 +214,11 @@ class Donation extends Component {
     const {classes} = this.props;
     return <FormControl className={classes.formControl} component="fieldset">
       <FormLabel className={classes.label}>To properly test this feature you will need to save the settings first if you
-        enabled or disabled to captcha.
+        enabled or disabled the captcha.
       </FormLabel>
       <Recaptcha
         ref={e => this.recaptchaInstance = e}
-        sitekey={this.props.team.settings.captchaPublicKey}
+        sitekey={this.state.captcha.publicKey}
         render="explicit"
         verifyCallback={this.recaptchaCallback}
       />
@@ -360,7 +358,8 @@ class Donation extends Component {
           {this.enableInvitations()}
           {this.state.enableInvitations && (!this.props.team.settings.adminToken || this.props.team.settings.adminToken.trim() === '') ? this.specialAdminToken() : ''}
           {this.state.enableInvitations ? this.enableCaptcha() : ''}
-          {this.state.enableCaptcha ? this.captchaSecret() : ''}
+          
+          {this.state.enableCaptcha && !this.state.enableLandingPage ? this.captchaSecret() : ''}
           {this.state.enableInvitations ? this.enableLandingPage() : ''}
         </Paper>
         
@@ -401,15 +400,22 @@ const DonationContainer = createContainer(() => {
   const currentUser = Meteor.user();
   const teamSubscription = Meteor.subscribe('getTeam');
   const userSubscription = Meteor.subscribe('user');
+  const settingsSubscription = Meteor.subscribe('recaptchaPublicKey');
+  const loadingSettings = !settingsSubscription.ready();
+  const settings = AppSettings.findOne({});
   
   const loadingTeam = !teamSubscription.ready();
   const loadingUser = !userSubscription.ready();
   
   const team = Teams.findOne({id: currentUser ? currentUser.profile.auth.team_id : ''}) || null;
   
+  console.log(settings);
+  
   return {
     currentUser: currentUser,
     loadingUser: loadingUser,
+    loadingSettings: loadingSettings,
+    settings: settings,
     team: team,
     loadingTeam: loadingTeam,
   };
