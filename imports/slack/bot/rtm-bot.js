@@ -499,9 +499,10 @@ export default class Bot {
           $set: {
             teamId: this.team.id,
             teamName: this.team.name,
-            token: this.team.bot,
             running: true,
-            dateStarted: new Date()
+            restart: false,
+            dateStarted: new Date(),
+            dateUpdated: new Date(),
           }
         });
       }));

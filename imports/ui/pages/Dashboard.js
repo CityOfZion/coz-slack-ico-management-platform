@@ -40,6 +40,9 @@ const styles = theme => ({
     textAlign: 'center',
     marginBottom: '1vh'
   },
+  tab: {
+    padding: '1vh'
+  }
 });
 
 class Dashboard extends React.Component {
@@ -59,12 +62,12 @@ class Dashboard extends React.Component {
       <div className={classes.root}>
         <AppBar position="static">
           <Tabs value={value} onChange={this.handleChange}>
-            <Tab label="Spam Bot Settings" />
-            <Tab label="Price Bot Settings" />
-            <Tab label="Banned User Management" />
-            <Tab label="Slack Settings" />
-            <Tab label="Invitations" />
-            <Tab label="Donate" />
+            <Tab className={classes.tab} label="Spam Bot Settings" />
+            <Tab className={classes.tab} label="Price Bot Settings" />
+            <Tab className={classes.tab} label="Banned User Management" />
+            <Tab className={classes.tab} label="Slack Settings" />
+            <Tab className={classes.tab} label="Invitations" />
+            <Tab className={classes.tab} label="Donate" />
           </Tabs>
         </AppBar>
         {value === 0 && <TabContainer><SpamBotSettings /></TabContainer>}

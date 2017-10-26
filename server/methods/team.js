@@ -1,5 +1,4 @@
 import {isAdmin} from "/imports/slack/helpers";
-import bot from '/imports/slack/bot/rtm-bot';
 
 Meteor.methods({
   saveSettings(settings, reset = true) {
@@ -8,14 +7,7 @@ Meteor.methods({
     Teams.update({id: teamId}, {$set: {settings: settings}});
     
     if(reset) {
-      if (!BotStorage[teamId]) {
-        const team = Teams.findOne({id: teamId});
-        const rtm = new bot(team);
-        BotStorage[team.id] = rtm;
-        BotStorage[team.id].start();
-      } else {
-        BotStorage[teamId].restart();
-      }
+      Bots.update({teamId: teamId}, {$set: {restart: true}})
     }
   }
 });
