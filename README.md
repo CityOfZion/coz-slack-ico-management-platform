@@ -40,7 +40,7 @@ Of course when you deploy this system, these URLs should reflect the URL you are
 
 Connect to the database with MongoBooster `localhost:3001`
 
-You will need to insert a document into the Mongo database to be able to use this platform.
+You will need to insert documents into the Mongo database to be able to use this platform.
 
 ```
 db.meteor_accounts_loginServiceConfiguration.insert({
@@ -48,6 +48,14 @@ db.meteor_accounts_loginServiceConfiguration.insert({
 	"clientId" : "your_slack_client_id",
 	"secret" : "your_slack_secret",
 	"loginStyle" : "redirect"
+})
+```
+
+```
+db.settings.insert({
+    "id" : "recaptcha",
+    "secretKey" : "recaptcha secret key",
+    "publicKey" : "recaptcha public key"
 })
 ```
 
