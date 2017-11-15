@@ -1,10 +1,9 @@
 export default {
   user: [
-    'reminders:read',
-    'reminders:write',
-    'im:history',
-    'im:write',
-    'users:read'
+    'identity.email',
+    'identity.basic',
+    'identity.team',
+    'identity.avatar'
   ],
   admin: [
     'im:read',
