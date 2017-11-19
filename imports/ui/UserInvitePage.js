@@ -184,7 +184,6 @@ class UserInvitePage extends Component {
   invite() {
     this.setState({invited: true});
     if (this.state.settings.inviteLimitReached) {
-      console.log(this.state)
       Meteor.call('createSharedInvite', Router.current().params.teamId, this.state.captchaResponse, (err, res) => {
         console.log(res);
         if (res.error) {
@@ -196,7 +195,6 @@ class UserInvitePage extends Component {
       });
     } else {
       Meteor.call('createAdminEmailInvite', Router.current().params.teamId, this.state.inviteEmail, this.state.captchaResponse, (err, res) => {
-        console.log(res);
         if (res.error) {
           this.setState({invited: false, resultError: res.error});
           if(this.state.settings.enableCaptcha) this.recaptchaInstance.reset();

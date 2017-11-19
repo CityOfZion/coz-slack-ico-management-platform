@@ -100,8 +100,9 @@ class Donation extends Component {
   
   checkSubs(props) {
     if (!props.loadingTeam && props.team && !props.loadingSettings && props.settings) {
-      console.log(props.settings);
-      this.setState({captcha: props.settings, ...props.team});
+      const state = props.team.settings;
+      state.captcha = props.settings;
+      this.setState({...state});
     }
   }
   
@@ -408,8 +409,6 @@ const DonationContainer = createContainer(() => {
   const loadingUser = !userSubscription.ready();
   
   const team = Teams.findOne({id: currentUser ? currentUser.profile.auth.team_id : ''}) || null;
-  
-  console.log(settings);
   
   return {
     currentUser: currentUser,
